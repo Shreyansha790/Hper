@@ -1,28 +1,64 @@
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { LandingPage } from '@/pages/customer/LandingPage';
+import { ShopPage } from '@/pages/customer/ShopPage';
+import { ProductDetailPage } from '@/pages/customer/ProductDetailPage';
+import { CheckoutPage } from '@/pages/customer/CheckoutPage';
+import { OrdersPage } from '@/pages/customer/OrdersPage';
+import { OrderTrackingPage } from '@/pages/customer/OrderTrackingPage';
+import { ReturnsPage } from '@/pages/customer/ReturnsPage';
+import { AuthPage } from '@/pages/customer/AuthPage';
+import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
+import { OverviewPage } from '@/pages/dashboard/OverviewPage';
+import { OrdersManagementPage } from '@/pages/dashboard/OrdersManagementPage';
+import { InventoryPage } from '@/pages/dashboard/InventoryPage';
+import { ProductsPage } from '@/pages/dashboard/ProductsPage';
+
 export default function App() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-zinc-100 p-8">
-      <div className="space-y-6 text-center">
-        <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-indigo-200">
-          <svg
-            className="h-8 w-8 text-white"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect x="2" y="4" width="20" height="16" rx="2" />
-            <path d="M10 4v4" />
-            <path d="M2 8h20" />
-            <path d="M6 4v4" />
-          </svg>
-        </div>
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Ready to build</h1>
-          <p className="text-slate-500">Start prompting to build your app.</p>
-        </div>
-      </div>
-    </div>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/shop" element={<ShopPage />} />
+      <Route path="/product/:id" element={<ProductDetailPage />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/orders" element={<OrdersPage />} />
+      <Route path="/track-order" element={<OrderTrackingPage />} />
+      <Route path="/returns" element={<ReturnsPage />} />
+      <Route path="/auth" element={<AuthPage />} />
+
+      <Route
+        path="/dashboard"
+        element={(
+          <DashboardLayout>
+            <OverviewPage />
+          </DashboardLayout>
+        )}
+      />
+      <Route
+        path="/dashboard/orders"
+        element={(
+          <DashboardLayout>
+            <OrdersManagementPage />
+          </DashboardLayout>
+        )}
+      />
+      <Route
+        path="/dashboard/inventory"
+        element={(
+          <DashboardLayout>
+            <InventoryPage />
+          </DashboardLayout>
+        )}
+      />
+      <Route
+        path="/dashboard/products"
+        element={(
+          <DashboardLayout>
+            <ProductsPage />
+          </DashboardLayout>
+        )}
+      />
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
