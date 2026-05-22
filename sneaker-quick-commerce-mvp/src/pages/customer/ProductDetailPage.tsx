@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Star,
@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/Button';
 export const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { addItem, openCart } = useCartStore();
+  const navigate = useNavigate();
 
   const product = mockProducts.find((p) => p.id === id);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -56,6 +57,33 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   const related = mockProducts.filter((p) => p.id !== product.id && (p.brand === product.brand || p.category === product.category)).slice(0, 3);
+
+  const handleShare = async () => {
+    const shareData = {
+      title: product.name,
+      text: `Check out ${product.name} on KicksFly`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        window.alert('Product link copied to clipboard!');
+      }
+    } catch (error) {
+      if (error instanceof Error && error.name !== 'AbortError') {
+        window.alert('Unable to share right now. Please try again.');
+      }
+    }
+  };
+
+  const handleBuyNow = () => {
+    if (!selectedSize) return;
+    addItem(product, selectedSize, 'store-001');
+    navigate('/checkout');
+  };
 
   return (
     <div className="min-h-screen bg-white pt-20">
@@ -96,7 +124,7 @@ export const ProductDetailPage: React.FC = () => {
                 />
               </button>
 
-              <button className="absolute top-4 left-4 p-2.5 rounded-2xl bg-white shadow-md hover:shadow-lg transition-all">
+              <button onClick={handleShare} className="absolute top-4 left-4 p-2.5 rounded-2xl bg-white shadow-md hover:shadow-lg transition-all">
                 <Share2 size={18} className="text-gray-400" />
               </button>
             </div>
@@ -179,12 +207,12 @@ export const ProductDetailPage: React.FC = () => {
             </div>
 
             {/* Size Selector */}
-            <div>
+            <div id="size-selector">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-bold text-gray-900">Select Size (UK)</h3>
-                <button className="text-sm text-violet-600 hover:text-violet-700 font-medium">
+                <a href="#size-selector" className="text-sm text-violet-600 hover:text-violet-700 font-medium">
                   Size Guide
-                </button>
+                </a>
               </div>
               <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
                 {product.sizes.map((sv) => {
@@ -244,7 +272,7 @@ export const ProductDetailPage: React.FC = () => {
               >
                 {addedToCart ? '✓ Added to Cart!' : selectedSize ? 'Add to Cart' : 'Select a Size'}
               </Button>
-              <Button variant="secondary" fullWidth size="lg">
+              <Button variant="secondary" fullWidth size="lg" onClick={handleBuyNow} disabled={!selectedSize}>
                 Buy Now — Pay on Delivery
               </Button>
             </div>
