@@ -1,11 +1,21 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { CartItem, Product } from '@/types';
+import type { Product } from '@/types';
+
+export interface CartLineItem {
+  id: string;
+  productId: string;
+  sneakerName: string;
+  selectedSize: string;
+  price: number;
+  quantity: number;
+  imageUrl: string;
+}
 
 interface CartState {
-  items: CartItem[];
+  items: CartLineItem[];
   isOpen: boolean;
-  addItem: (product: Product, size: string, storeId: string) => void;
+  addItem: (product: Product, selectedSize: string) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
@@ -14,8 +24,6 @@ interface CartState {
   closeCart: () => void;
   getTotalItems: () => number;
   getSubtotal: () => number;
-  getDeliveryFee: () => number;
-  getTotal: () => number;
 }
 
 export const useCartStore = create<CartState>()(
@@ -23,72 +31,49 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       isOpen: false,
-
-      addItem: (product, size, storeId) => {
-        const items = get().items;
-        const existingItem = items.find(
-          (item) => item.productId === product.id && item.size === size
+      addItem: (product, selectedSize) => {
+        const existing = get().items.find(
+          (item) => item.productId === product.id && item.selectedSize === selectedSize
         );
 
-        if (existingItem) {
+        if (existing) {
           set({
-            items: items.map((item) =>
-              item.id === existingItem.id
-                ? { ...item, quantity: item.quantity + 1 }
-                : item
+            items: get().items.map((item) =>
+              item.id === existing.id ? { ...item, quantity: item.quantity + 1 } : item
             ),
           });
-        } else {
-          const newItem: CartItem = {
-            id: `cart-${Date.now()}-${Math.random()}`,
-            productId: product.id,
-            product,
-            size,
-            quantity: 1,
-            storeId,
-          };
-          set({ items: [...items, newItem] });
+          return;
         }
-      },
 
-      removeItem: (itemId) => {
-        set({ items: get().items.filter((item) => item.id !== itemId) });
-      },
+        const lineItem: CartLineItem = {
+          id: `cart-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          productId: product.id,
+          sneakerName: product.name,
+          selectedSize,
+          price: product.price,
+          quantity: 1,
+          imageUrl: product.images[0] || '',
+        };
 
+        set({ items: [...get().items, lineItem] });
+      },
+      removeItem: (itemId) => set({ items: get().items.filter((item) => item.id !== itemId) }),
       updateQuantity: (itemId, quantity) => {
         if (quantity <= 0) {
           get().removeItem(itemId);
           return;
         }
         set({
-          items: get().items.map((item) =>
-            item.id === itemId ? { ...item, quantity } : item
-          ),
+          items: get().items.map((item) => (item.id === itemId ? { ...item, quantity } : item)),
         });
       },
-
       clearCart: () => set({ items: [] }),
-
       toggleCart: () => set({ isOpen: !get().isOpen }),
       openCart: () => set({ isOpen: true }),
       closeCart: () => set({ isOpen: false }),
-
-      getTotalItems: () =>
-        get().items.reduce((total, item) => total + item.quantity, 0),
-
-      getSubtotal: () =>
-        get().items.reduce(
-          (total, item) => total + item.product.price * item.quantity,
-          0
-        ),
-
-      getDeliveryFee: () => {
-        const subtotal = get().getSubtotal();
-        return subtotal > 15000 ? 0 : 49;
-      },
-
-      getTotal: () => get().getSubtotal() + get().getDeliveryFee(),
+      getTotalItems: () => get().items.reduce((sum, item) => sum + item.quantity, 0),
+      getSubtotal: () => get().items.reduce((sum, item) => sum + item.price * item.quantity, 0),
     }),
-    { name: 'kicksfly-cart' }
+    { name: 'kicksfly-cart-v2' }
   )
 );

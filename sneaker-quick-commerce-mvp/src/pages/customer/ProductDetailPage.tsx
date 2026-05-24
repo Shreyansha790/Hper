@@ -48,7 +48,7 @@ export const ProductDetailPage: React.FC = () => {
 
   const handleAddToCart = () => {
     if (!selectedSize) return;
-    addItem(product, selectedSize, 'store-001');
+    addItem(product, selectedSize);
     setAddedToCart(true);
     setTimeout(() => {
       setAddedToCart(false);
@@ -81,7 +81,7 @@ export const ProductDetailPage: React.FC = () => {
 
   const handleBuyNow = () => {
     if (!selectedSize) return;
-    addItem(product, selectedSize, 'store-001');
+    addItem(product, selectedSize);
     navigate('/checkout');
   };
 
