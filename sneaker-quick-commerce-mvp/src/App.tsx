@@ -12,6 +12,7 @@ import { OverviewPage } from '@/pages/dashboard/OverviewPage';
 import { OrdersManagementPage } from '@/pages/dashboard/OrdersManagementPage';
 import { InventoryPage } from '@/pages/dashboard/InventoryPage';
 import { ProductsPage } from '@/pages/dashboard/ProductsPage';
+import { AdminDashboardPage } from '@/pages/dashboard/AdminDashboardPage';
 
 export default function App() {
   return (
@@ -54,6 +55,16 @@ export default function App() {
         element={(
           <DashboardLayout>
             <ProductsPage />
+          </DashboardLayout>
+        )}
+      />
+
+
+      <Route
+        path="/admin/dashboard"
+        element={(
+          <DashboardLayout>
+            <AdminDashboardPage />
           </DashboardLayout>
         )}
       />

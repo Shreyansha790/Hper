@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { MapPin, CreditCard, Smartphone, Banknote, ChevronRight, Zap, Lock } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useAuthStore } from '@/store/authStore';
-import { formatCurrency, generateOrderId } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
+import { submitOrder } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
@@ -44,10 +45,30 @@ export const CheckoutPage: React.FC = () => {
 
   const handlePlaceOrder = async () => {
     setIsPlacing(true);
-    await new Promise((r) => setTimeout(r, 1800));
-    const orderId = generateOrderId();
-    clearCart();
-    navigate(`/order-tracking/${orderId}?new=1`);
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    try {
+      const orderId = await submitOrder({
+        userId: user.id,
+        storeId: items[0].storeId,
+        paymentMethod,
+        subtotal,
+        deliveryFee,
+        total,
+        address,
+        items,
+      });
+
+      clearCart();
+      navigate(`/order-tracking/${orderId}?new=1`);
+    } catch (error) {
+      console.error(error);
+      setIsPlacing(false);
+      return;
+    }
   };
 
   const paymentOptions: { type: PaymentType; label: string; icon: React.ReactNode; desc: string }[] = [
