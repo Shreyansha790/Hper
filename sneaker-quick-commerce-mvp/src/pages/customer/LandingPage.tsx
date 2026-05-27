@@ -387,7 +387,7 @@ export const LandingPage: React.FC = () => {
                       )}
                     </div>
                     <button
-                      onClick={() => addItem(product, product.sizes[0]?.size || '9', 'store-001')}
+                      onClick={() => addItem(product, product.sizes[0]?.size || '9')}
                       className="px-4 py-2 rounded-xl text-sm font-bold text-white gradient-primary hover:opacity-90 transition-all shadow-md shadow-violet-200 hover:-translate-y-0.5"
                     >
                       + Add

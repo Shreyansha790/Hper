@@ -61,7 +61,7 @@ export const ShopPage: React.FC = () => {
   }, [searchQ, selectedBrand, selectedCategory, sortBy, maxPrice]);
 
   const handleQuickAdd = (product: typeof mockProducts[0]) => {
-    addItem(product, product.sizes[Math.floor(product.sizes.length / 2)]?.size || '9', 'store-001');
+    addItem(product, product.sizes[Math.floor(product.sizes.length / 2)]?.size || '9');
     setAddedId(product.id);
     setTimeout(() => setAddedId(null), 1500);
   };
