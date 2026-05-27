@@ -4,6 +4,7 @@ import { mockProducts } from '@/lib/mock/products';
 import { mockStores } from '@/lib/mock/stores';
 import { useAuthStore } from '@/store/authStore';
 import type { Order, OrderItem } from '@/types';
+import { supabase, isSupabaseConfigured } from './client';
 
 export interface CheckoutDetails {
   fullName: string;
@@ -80,8 +81,65 @@ export async function submitOrder(cartItems: CartLineItem[], customer: CheckoutD
     updatedAt: new Date().toISOString(),
   };
 
-  console.log('[submitOrder] Saving dynamic order:', newOrder);
+  console.log('[submitOrder] Saving local order:', newOrder);
   saveOrder(newOrder);
+
+  if (isSupabaseConfigured) {
+    console.log('[submitOrder] Supabase is configured. Inserting order into database...');
+    try {
+      // 1. Insert into Orders table
+      const { error: orderError } = await supabase.from('Orders').insert({
+        id: orderId,
+        user_id: userId,
+        store_id: 'store-001',
+        status: 'placed',
+        payment_method: customer.paymentMethod === 'razorpay' ? 'card' : 'cod',
+        payment_status: customer.paymentMethod === 'razorpay' ? 'paid' : 'pending',
+        subtotal,
+        delivery_fee: deliveryFee,
+        discount,
+        total,
+        estimated_delivery: newOrder.estimatedDelivery,
+        rider_name: 'Anil Kumar',
+        address: {
+          label: 'Home',
+          line1: customer.addressLine1,
+          area: customer.city,
+          city: customer.city,
+          pincode: customer.postalCode,
+        },
+        timeline: [
+          { status: 'placed', timestamp: new Date().toISOString() }
+        ],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+
+      if (orderError) {
+        console.error('[submitOrder] Failed to insert order into Supabase database:', orderError.message);
+      } else {
+        // 2. Insert items into OrderItems table
+        const dbOrderItems = cartItems.map((item, idx) => ({
+          id: `oi-${orderId}-${idx}-${Math.random().toString(36).slice(2, 6)}`,
+          order_id: orderId,
+          product_id: item.productId,
+          size: item.selectedSize,
+          quantity: item.quantity,
+          price: item.price,
+          store_id: 'store-001'
+        }));
+
+        const { error: itemsError } = await supabase.from('OrderItems').insert(dbOrderItems);
+        if (itemsError) {
+          console.error('[submitOrder] Failed to insert order items into Supabase database:', itemsError.message);
+        } else {
+          console.log('[submitOrder] Order and OrderItems successfully inserted into Supabase!');
+        }
+      }
+    } catch (err) {
+      console.error('[submitOrder] Database exception during insertion:', err);
+    }
+  }
 
   return { success: true, orderId };
 }

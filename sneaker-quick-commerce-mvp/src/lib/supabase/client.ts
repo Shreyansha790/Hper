@@ -1,3 +1,4 @@
+import { createClient } from '@supabase/supabase-js';
 import { mockOrders, updateMockOrderStatus } from '../mock/orders';
 
 export const supabaseConfig = {
@@ -5,11 +6,13 @@ export const supabaseConfig = {
   anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY ?? '',
 };
 
+export const isSupabaseConfigured = Boolean(supabaseConfig.url && supabaseConfig.anonKey);
+
 type QueryResponse<T = unknown> = Promise<{ data: T; error: null }>;
 
 const resolved = <T>(data: T): QueryResponse<T> => Promise.resolve({ data, error: null });
 
-const queryBuilder = {
+const mockQueryBuilder = {
   select: () => ({
     order: () => {
       const dbOrders = mockOrders.map((order) => ({
@@ -53,8 +56,8 @@ const queryBuilder = {
   }),
 };
 
-export const supabase = {
-  from: (table: string) => queryBuilder,
-};
-
-export const isSupabaseConfigured = Boolean(supabaseConfig.url && supabaseConfig.anonKey);
+export const supabase = isSupabaseConfigured
+  ? createClient(supabaseConfig.url, supabaseConfig.anonKey)
+  : {
+      from: (table: string) => mockQueryBuilder,
+    };
