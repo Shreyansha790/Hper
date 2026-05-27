@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   TrendingUp,
@@ -23,9 +23,10 @@ import {
   Bar,
 } from 'recharts';
 import { Link } from 'react-router-dom';
-import { mockAnalytics, mockRevenueData, mockTopProducts, mockOrders } from '@/lib/mock';
+import { mockAnalytics, mockRevenueData } from '@/lib/mock';
 import { formatCurrency, getOrderStatusColor, getOrderStatusLabel } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
+import { useDashboardStore } from '@/store/dashboardStore';
 
 const MetricCard: React.FC<{
   title: string;
@@ -60,8 +61,73 @@ const MetricCard: React.FC<{
 
 export const OverviewPage: React.FC = () => {
   const { user } = useAuthStore();
-  const a = mockAnalytics;
-  const recentOrders = mockOrders.slice(0, 4);
+  const { orders, isLoadingOrders, fetchOrders } = useDashboardStore();
+
+  useEffect(() => {
+    void fetchOrders();
+  }, [fetchOrders]);
+
+  const recentOrders = orders.slice(0, 4);
+
+  const topProducts = useMemo(() => {
+    const productsMap = new Map<string, {
+      productId: string;
+      name: string;
+      brand: string;
+      revenue: number;
+      unitsSold: number;
+    }>();
+
+    orders.forEach((order) => {
+      order.items.forEach((item) => {
+        const existing = productsMap.get(item.productId);
+        const itemRevenue = item.price * item.quantity;
+
+        if (existing) {
+          existing.unitsSold += item.quantity;
+          existing.revenue += itemRevenue;
+          return;
+        }
+
+        productsMap.set(item.productId, {
+          productId: item.productId,
+          name: item.product?.name ?? 'Unknown product',
+          brand: item.product?.brand ?? 'Unknown brand',
+          revenue: itemRevenue,
+          unitsSold: item.quantity,
+        });
+      });
+    });
+
+    return [...productsMap.values()]
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+  }, [orders]);
+
+  const metrics = useMemo(() => {
+    const totalOrders = orders.length;
+    const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+    const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    const pendingOrders = orders.filter((order) =>
+      ['placed', 'confirmed', 'packed', 'rider_assigned', 'out_for_delivery'].includes(order.status),
+    ).length;
+
+    const todayDate = new Date().toISOString().split('T')[0];
+    const deliveredToday = orders.filter((order) =>
+      order.status === 'delivered' && order.updatedAt?.startsWith(todayDate),
+    ).length;
+
+    const activeCustomers = new Set(orders.map((order) => order.userId)).size;
+
+    return {
+      totalRevenue,
+      totalOrders,
+      avgOrderValue,
+      pendingOrders,
+      deliveredToday,
+      activeCustomers,
+    };
+  }, [orders]);
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -75,25 +141,25 @@ export const OverviewPage: React.FC = () => {
         </div>
         <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-violet-50 rounded-xl border border-violet-100">
           <Zap size={14} className="text-violet-600 fill-violet-600" />
-          <span className="text-sm font-bold text-violet-700">{a.deliveredToday} delivered today</span>
+          <span className="text-sm font-bold text-violet-700">{metrics.deliveredToday} delivered today</span>
         </div>
       </div>
 
       {/* Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard title="Total Revenue" value={formatCurrency(a.totalRevenue)} change={a.revenueGrowth} icon={<TrendingUp size={20} />} color="text-violet-600" bg="bg-violet-100" index={0} />
-        <MetricCard title="Total Orders" value={a.totalOrders.toString()} change={a.ordersGrowth} icon={<ShoppingCart size={20} />} color="text-blue-600" bg="bg-blue-100" index={1} />
-        <MetricCard title="Avg Order Value" value={formatCurrency(a.avgOrderValue)} change={a.aovGrowth} icon={<Package size={20} />} color="text-emerald-600" bg="bg-emerald-100" index={2} />
-        <MetricCard title="Active Customers" value={a.activeCustomers.toString()} change={a.customersGrowth} icon={<Users size={20} />} color="text-orange-600" bg="bg-orange-100" index={3} />
+        <MetricCard title="Total Revenue" value={formatCurrency(metrics.totalRevenue)} change={0} icon={<TrendingUp size={20} />} color="text-violet-600" bg="bg-violet-100" index={0} />
+        <MetricCard title="Total Orders" value={metrics.totalOrders.toString()} change={0} icon={<ShoppingCart size={20} />} color="text-blue-600" bg="bg-blue-100" index={1} />
+        <MetricCard title="Avg Order Value" value={formatCurrency(metrics.avgOrderValue)} change={0} icon={<Package size={20} />} color="text-emerald-600" bg="bg-emerald-100" index={2} />
+        <MetricCard title="Active Customers" value={metrics.activeCustomers.toString()} change={0} icon={<Users size={20} />} color="text-orange-600" bg="bg-orange-100" index={3} />
       </div>
 
       {/* Alert Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Pending Orders', value: a.pendingOrders, icon: <ShoppingCart size={16} />, color: 'text-amber-600 bg-amber-50 border-amber-200', path: '/dashboard/orders' },
-          { label: 'Delivered Today', value: a.deliveredToday, icon: <Truck size={16} />, color: 'text-emerald-600 bg-emerald-50 border-emerald-200', path: '/dashboard/orders' },
-          { label: 'Low Stock Alerts', value: a.lowStockItems, icon: <AlertTriangle size={16} />, color: 'text-red-500 bg-red-50 border-red-200', path: '/dashboard/inventory' },
-          { label: 'Return Requests', value: a.returnRequests, icon: <RotateCcw size={16} />, color: 'text-violet-600 bg-violet-50 border-violet-200', path: '/dashboard/returns' },
+          { label: 'Pending Orders', value: metrics.pendingOrders, icon: <ShoppingCart size={16} />, color: 'text-amber-600 bg-amber-50 border-amber-200', path: '/dashboard/orders' },
+          { label: 'Delivered Today', value: metrics.deliveredToday, icon: <Truck size={16} />, color: 'text-emerald-600 bg-emerald-50 border-emerald-200', path: '/dashboard/orders' },
+          { label: 'Low Stock Alerts', value: mockAnalytics.lowStockItems, icon: <AlertTriangle size={16} />, color: 'text-red-500 bg-red-50 border-red-200', path: '/dashboard/inventory' },
+          { label: 'Return Requests', value: mockAnalytics.returnRequests, icon: <RotateCcw size={16} />, color: 'text-violet-600 bg-violet-50 border-violet-200', path: '/dashboard/returns' },
         ].map((item) => (
           <Link key={item.label} to={item.path}>
             <motion.div
@@ -165,7 +231,11 @@ export const OverviewPage: React.FC = () => {
             <Link to="/dashboard/products" className="text-xs text-violet-600 font-semibold">View all</Link>
           </div>
           <div className="space-y-4">
-            {mockTopProducts.map((tp, i) => (
+            {isLoadingOrders ? (
+              <p className="text-sm text-gray-500">Loading live products...</p>
+            ) : topProducts.length === 0 ? (
+              <p className="text-sm text-gray-500">No product sales yet.</p>
+            ) : topProducts.map((tp, i) => (
               <div key={tp.productId} className="flex items-center gap-3">
                 <span className="text-sm font-black text-gray-300 w-4">{i + 1}</span>
                 <div className="flex-1 min-w-0">
@@ -174,7 +244,7 @@ export const OverviewPage: React.FC = () => {
                   <div className="mt-1 bg-gray-100 rounded-full h-1">
                     <div
                       className="h-1 rounded-full gradient-primary"
-                      style={{ width: `${(tp.revenue / mockTopProducts[0].revenue) * 100}%` }}
+                      style={{ width: `${(tp.revenue / (topProducts[0]?.revenue || 1)) * 100}%` }}
                     />
                   </div>
                 </div>
