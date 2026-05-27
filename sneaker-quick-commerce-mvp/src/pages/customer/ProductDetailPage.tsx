@@ -280,7 +280,7 @@ export const ProductDetailPage: React.FC = () => {
             {/* Features */}
             <div className="grid grid-cols-2 gap-3">
               {[
-                { icon: <Shield size={14} />, text: '100% Authentic' },
+                { icon: <Shield size={14} />, text: 'Premium UA Quality - Exact 1:1 precision.' },
                 { icon: <Truck size={14} />, text: 'Free Returns' },
                 { icon: <Zap size={14} />, text: '30-Min Delivery' },
                 { icon: <Star size={14} />, text: 'Premium Quality' },

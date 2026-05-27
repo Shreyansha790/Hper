@@ -36,7 +36,7 @@ export const mockProducts: Product[] = [
     description:
       'The Jordan Retro High OG is a master replica of a generation-defining silhouette with refined modern construction. Tumbled leather upper, encapsulated Air-style cushioning, and iconic wing-inspired detailing deliver that timeless courtside energy.',
     price: 3999,
-    originalPrice: 5299,
+    originalPrice: 4599,
     images: ['/images/sneaker-2.jpg', '/images/hero-sneaker.jpg'],
     category: 'basketball',
     colorway: 'Black / Fire Red',
@@ -86,8 +86,8 @@ export const mockProducts: Product[] = [
     model: '990v6',
     description:
       'The 990 series is New Balance\'s crown jewel — Made in USA craftsmanship meets modern performance. The 990v6 features a premium suede and mesh upper, ENCAP midsole technology, and that unmistakable silhouette that has stood the test of time.',
-    price: 18999,
-    originalPrice: 19999,
+    price: 3599,
+    originalPrice: 4299,
     images: ['/images/sneaker-4.jpg'],
     category: 'running',
     colorway: 'Grey / Navy',
@@ -112,8 +112,8 @@ export const mockProducts: Product[] = [
     model: 'Dunk Low Pro SB',
     description:
       'Born on the skate parks of California, the Dunk Low Pro SB brought performance and street style together. Featuring Zoom Air cushioning, premium suede toe overlay, and that unmistakable chunky outsole. The University Blue colorway is a certified grail.',
-    price: 12999,
-    originalPrice: 14999,
+    price: 2999,
+    originalPrice: 3899,
     images: ['/images/sneaker-5.jpg'],
     category: 'skateboarding',
     colorway: 'University Blue / White',
@@ -137,8 +137,8 @@ export const mockProducts: Product[] = [
     model: 'Air Force 1 Luxe',
     description:
       'The AF1 — the shoe that started a revolution. The Luxe edition elevates the classic with premium tumbled leather, a cushioned insole for all-day comfort, and that iconic Air cushioning unit. Triple white. Timeless.',
-    price: 8999,
-    originalPrice: 9999,
+    price: 4199,
+    originalPrice: 4499,
     images: ['/images/sneaker-6.jpg'],
     category: 'lifestyle',
     colorway: 'Triple White',
