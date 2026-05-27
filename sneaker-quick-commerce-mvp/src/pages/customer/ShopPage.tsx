@@ -63,6 +63,7 @@ export const ShopPage: React.FC = () => {
   const hasActiveFilters = selectedBrand !== 'All' || selectedCategory !== 'All';
 
   return (
+ feature/dark-luxury-ui
     <div className="min-h-screen bg-[#0A0A0A] text-white">
 
       {/* ── Page Header ── */}
@@ -76,6 +77,15 @@ export const ShopPage: React.FC = () => {
               EXCLUSIVE DROPS
             </h1>
             <p className="text-xs text-neutral-500 mt-2">30-minute express delivery guaranteed across Bangalore</p>
+
+    <div className="min-h-screen bg-black text-white pt-20">
+      {/* Header */}
+      <div className="bg-gradient-to-b from-neutral-950 via-black to-neutral-900 py-14 border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="text-4xl font-black text-gray-900">Exclusive Drops</h1>
+            <p className="text-gray-500 mt-2">{filtered.length} premium alternatives · 30-minute delivery guaranteed</p>
+ main
           </motion.div>
         </div>
       </div>
@@ -90,8 +100,13 @@ export const ShopPage: React.FC = () => {
             <input
               value={searchQ}
               onChange={(e) => setSearchQ(e.target.value)}
+ feature/dark-luxury-ui
               placeholder="Search master replicas..."
               className="w-full pl-9 pr-4 py-2.5 bg-[#111111] border border-white/10 rounded-sm text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-[#E8FF47]/40 focus:ring-1 focus:ring-[#E8FF47]/20 transition-all"
+
+              placeholder="Search premium alternatives..."
+              className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-white/40 bg-neutral-900 text-white"
+ main
             />
           </div>
 
@@ -253,8 +268,13 @@ export const ShopPage: React.FC = () => {
 
                   {/* Image */}
                   <Link to={`/product/${product.id}`}>
+ feature/dark-luxury-ui
                     <div className="relative h-48 sm:h-56 bg-gradient-to-b from-[#161616] to-[#111111] overflow-hidden mx-3 mt-2 rounded-sm">
                       <span className="absolute top-2 right-2 z-20 px-2 py-0.5 border border-white/15 bg-black/70 text-[8px] font-mono-custom uppercase tracking-[0.18em] text-neutral-400 rounded-sm">1:1</span>
+
+                    <div className="relative h-48 sm:h-56 bg-gradient-to-b from-neutral-900 to-black overflow-hidden -mt-8 pt-8">
+                      <span className="absolute top-3 right-3 z-20 px-2 py-1 rounded-full border border-white/20 bg-black/70 text-[10px] uppercase tracking-[0.18em] font-semibold text-white">Boutique Pick</span>
+ main
                       <img
                         src={product.images[0]}
                         alt={product.name}

@@ -15,10 +15,37 @@ const categories = [
 ];
 
 const features = [
+ feature/dark-luxury-ui
   { icon: <Zap size={18} />,   title: '30-MIN DELIVERY',   desc: 'From our city warehouse to your door' },
   { icon: <Shield size={18} />, title: 'PREMIUM UA GRADE',  desc: 'Exact 1:1 precision, high-grade materials' },
   { icon: <Truck size={18} />,  title: 'FREE ON ₹15K+',    desc: 'Always free above threshold' },
   { icon: <Clock size={18} />,  title: '7-DAY RETURNS',    desc: 'No questions asked return policy' },
+=======
+  {
+    icon: <Zap size={20} />,
+    title: '30-Min Delivery',
+    desc: 'From our store to your door faster than a pizza.',
+    color: 'text-violet-600 bg-violet-50',
+  },
+  {
+    icon: <Shield size={20} />,
+    title: 'Luxury Craftsmanship',
+    desc: 'Curated with high-grade materials, premium finishing, and detail-first construction.',
+    color: 'text-blue-600 bg-blue-50',
+  },
+  {
+    icon: <Truck size={20} />,
+    title: 'Free Delivery',
+    desc: 'Free on orders above ₹15,000. Always.',
+    color: 'text-emerald-600 bg-emerald-50',
+  },
+  {
+    icon: <Clock size={20} />,
+    title: 'Easy Returns',
+    desc: '7-day no-questions-asked return policy.',
+    color: 'text-orange-600 bg-orange-50',
+  },
+ main
 ];
 
 // Ticker brands repeated for seamless loop
@@ -67,10 +94,15 @@ export const LandingPage: React.FC = () => {
               transition={{ delay: 0.1 }}
               className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#E8FF47]/10 border border-[#E8FF47]/25 rounded-sm mb-6"
             >
+ feature/dark-luxury-ui
               <span className="w-1.5 h-1.5 rounded-full bg-[#E8FF47] animate-pulse-soft" />
               <span className="text-[11px] font-bold text-[#E8FF47] tracking-[0.12em] uppercase font-mono-custom">
                 Bangalore's Fastest Import Delivery
               </span>
+=======
+              <Sparkles size={14} className="text-violet-600" />
+              <span className="text-sm font-semibold text-violet-700">Bangalore's Fastest Premium Sneaker Concierge</span>
+ main
             </motion.div>
 
             {/* Hero Headline */}
@@ -80,10 +112,18 @@ export const LandingPage: React.FC = () => {
               transition={{ delay: 0.2 }}
               className="font-display text-[clamp(72px,10vw,130px)] leading-[0.92] tracking-wide text-white"
             >
+ feature/dark-luxury-ui
               PREMIUM<br />
               1:1<br />
               <span className="text-[#E8FF47]">MASTER</span><br />
               COPIES
+=======
+              Premium Sneaker Drops
+              <br />
+              <span className="text-gradient">In 30</span>
+              <br />
+              Minutes
+ main
             </motion.h1>
 
             <motion.p
@@ -92,8 +132,12 @@ export const LandingPage: React.FC = () => {
               transition={{ delay: 0.35 }}
               className="mt-6 text-sm text-neutral-400 leading-relaxed max-w-sm font-medium"
             >
+ feature/dark-luxury-ui
               Nike. Jordan. Yeezy. New Balance. Top-tier imports delivered express from our Bangalore warehouses.{' '}
               <span className="text-white font-semibold">No waiting. No compromise.</span>
+
+              Nike. Jordan. Yeezy. New Balance. Discover premium alternatives delivered express from our city warehouses. No waiting, no compromise.
+ main
             </motion.p>
 
             {/* CTAs */}
@@ -328,8 +372,13 @@ export const LandingPage: React.FC = () => {
             className="flex items-end justify-between mb-10"
           >
             <div>
+ feature/dark-luxury-ui
               <p className="text-[10px] font-mono-custom text-[#E8FF47] uppercase tracking-[0.2em] mb-2">🔥 Hot Right Now</p>
               <h2 className="font-display text-[52px] text-white leading-none tracking-wide">FEATURED DROPS</h2>
+
+              <p className="text-sm font-semibold text-violet-600 uppercase tracking-wide mb-2">🔥 Hot Right Now</p>
+              <h2 className="text-4xl font-black text-gray-900">Featured Boutique Picks</h2>
+ main
             </div>
             <Link
               to="/shop"
@@ -387,7 +436,14 @@ export const LandingPage: React.FC = () => {
                       {product.name.toUpperCase()}
                     </h3>
                   </Link>
+ feature/dark-luxury-ui
                   <p className="text-[10px] text-neutral-600 mt-0.5">{product.colorway}</p>
+
+                  <p className="text-xs text-gray-500 mt-0.5">{product.colorway}</p>
+                  <span className="inline-flex mt-2 px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 text-[10px] font-bold uppercase tracking-wide">
+                    {product.tags.includes('editors-choice') ? "Editor's Choice" : 'Boutique Pick'}
+                  </span>
+ main
 
                   <div className="flex items-center gap-1 mt-2">
                     <Star size={10} className="fill-[#E8FF47] text-[#E8FF47]" />
