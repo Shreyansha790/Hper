@@ -34,12 +34,16 @@ export const CheckoutPage: React.FC = () => {
   }
 
   const placeOrder = async () => {
-    if (!canSubmit) return;
+    if (!canSubmit || isSubmitting) return;
+
     setIsSubmitting(true);
-    await submitOrder(items, { ...details, paymentMethod });
-    clearCart();
-    setIsSubmitting(false);
-    navigate('/orders');
+    try {
+      await submitOrder(items, { ...details, paymentMethod });
+      clearCart();
+      navigate('/orders');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
