@@ -53,17 +53,19 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-[#0D0D0D]">
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-gray-100">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl gradient-primary flex items-center justify-center shadow-lg">
-            <Zap size={15} className="text-white fill-white" />
+      <div className="px-5 py-5 border-b border-white/[0.07]">
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="w-7 h-7 bg-[#E8FF47] rounded-sm flex items-center justify-center shadow-[0_0_16px_rgba(232,255,71,0.4)]">
+            <Zap size={14} className="text-black fill-black" />
           </div>
           {sidebarOpen && (
             <div>
-              <span className="text-base font-black text-gray-900">Kicks<span className="text-gradient">Fly</span></span>
-              <p className="text-[10px] text-gray-400 font-medium -mt-0.5">Operations Dashboard</p>
+              <span className="font-display text-lg tracking-wider text-white">
+                KICKS<span className="text-[#E8FF47]">FLY</span>
+              </span>
+              <p className="text-[9px] text-neutral-500 font-mono-custom uppercase tracking-wider -mt-0.5">Ops Dashboard</p>
             </div>
           )}
         </Link>
@@ -71,19 +73,19 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
 
       {/* Role Badge */}
       {sidebarOpen && user && (
-        <div className="px-4 py-3 mx-3 mt-3 rounded-xl bg-violet-50 border border-violet-100">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center text-white text-xs font-black">
-              {user.name.charAt(0)}
+        <div className="px-4 py-3.5 mx-3 mt-4 rounded-sm bg-[#E8FF47]/5 border border-[#E8FF47]/20 shadow-glow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-sm bg-[#E8FF47] flex items-center justify-center text-black text-sm font-bold flex-shrink-0">
+              {user.name.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-bold text-gray-900 truncate">{user.name}</p>
-              <p className="text-[10px] font-semibold text-violet-600 uppercase tracking-wide">{user.role}</p>
+              <p className="text-xs font-bold text-white truncate uppercase tracking-wider">{user.name}</p>
+              <p className="text-[9px] font-mono-custom font-bold text-[#E8FF47] uppercase tracking-wide mt-0.5">{user.role}</p>
             </div>
           </div>
           {user.role === 'storekeeper' && user.assignedStoreId && (
-            <p className="text-[10px] text-gray-500 mt-2 flex items-center gap-1">
-              <Store size={8} /> Indiranagar Store
+            <p className="text-[9px] text-neutral-400 font-mono-custom uppercase tracking-wide mt-3 flex items-center gap-1.5 pt-2.5 border-t border-white/5">
+              <Store size={10} className="text-[#E8FF47]" /> Indiranagar Store
             </p>
           )}
         </div>
@@ -99,25 +101,25 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               to={item.path}
               onClick={() => setMobileSidebarOpen(false)}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative',
+                'flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all group relative',
                 isActive
-                  ? 'bg-violet-600 text-white shadow-md shadow-violet-200'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-[#E8FF47] text-black shadow-glow-sm hover:bg-[#d4eb30]'
+                  : 'text-neutral-400 hover:bg-white/5 hover:text-white'
               )}
             >
-              <span className={cn('flex-shrink-0', isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-600')}>
+              <span className={cn('flex-shrink-0', isActive ? 'text-black' : 'text-neutral-400 group-hover:text-white')}>
                 {item.icon}
               </span>
               {sidebarOpen && (
-                <span className="text-sm font-semibold flex-1">{item.label}</span>
+                <span className="text-xs font-bold uppercase tracking-wider font-mono-custom flex-1">{item.label}</span>
               )}
               {item.badge && sidebarOpen && (
-                <span className={cn('px-1.5 py-0.5 rounded-full text-[10px] font-black', isActive ? 'bg-white/20 text-white' : 'bg-violet-100 text-violet-700')}>
+                <span className={cn('px-1.5 py-0.5 rounded-sm text-[9px] font-bold font-mono-custom', isActive ? 'bg-black/10 text-black' : 'bg-[#E8FF47]/10 text-[#E8FF47]')}>
                   {item.badge}
                 </span>
               )}
               {!sidebarOpen && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                <div className="absolute left-full ml-2 px-2 py-1 bg-black border border-white/10 text-white text-[10px] font-mono-custom uppercase tracking-wider rounded-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                   {item.label}
                 </div>
               )}
@@ -127,16 +129,16 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
       </nav>
 
       {/* Bottom */}
-      <div className="px-3 pb-4 space-y-1 border-t border-gray-100 pt-3">
-        <Link to="/" className={cn('flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-600 hover:bg-gray-100 transition-all text-sm font-semibold')}>
-          <ChevronRight size={18} className="text-gray-400 rotate-180" />
+      <div className="px-3 pb-4 space-y-1 border-t border-white/[0.07] pt-3">
+        <Link to="/" className={cn('flex items-center gap-3 px-3 py-2.5 rounded-sm text-neutral-400 hover:bg-white/5 hover:text-white transition-all text-xs font-bold uppercase tracking-wider font-mono-custom')}>
+          <ChevronRight size={14} className="text-neutral-500 rotate-180" />
           {sidebarOpen && 'Back to Store'}
         </Link>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-50 transition-all text-sm font-semibold"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-sm text-red-400 hover:bg-red-950/10 hover:text-red-500 transition-all text-xs font-bold uppercase tracking-wider font-mono-custom"
         >
-          <LogOut size={18} />
+          <LogOut size={14} />
           {sidebarOpen && 'Logout'}
         </button>
       </div>
@@ -144,12 +146,12 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   );
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-[#0A0A0A] text-white overflow-hidden">
       {/* Desktop Sidebar */}
       <motion.aside
         animate={{ width: sidebarOpen ? 240 : 64 }}
         transition={{ duration: 0.2 }}
-        className="hidden md:flex flex-col bg-white border-r border-gray-100 shadow-sm flex-shrink-0 overflow-hidden"
+        className="hidden md:flex flex-col bg-[#0D0D0D] border-r border-white/[0.07] flex-shrink-0 overflow-hidden"
       >
         <SidebarContent />
       </motion.aside>
@@ -162,7 +164,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/40 z-40 md:hidden"
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 md:hidden"
               onClick={() => setMobileSidebarOpen(false)}
             />
             <motion.aside
@@ -170,7 +172,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ type: 'spring', damping: 30 }}
-              className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-100 shadow-xl z-50 md:hidden"
+              className="fixed left-0 top-0 h-full w-64 bg-[#0D0D0D] border-r border-white/[0.07] z-50 md:hidden"
             >
               <SidebarContent />
             </motion.aside>
@@ -181,38 +183,38 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar */}
-        <header className="bg-white border-b border-gray-100 px-4 md:px-6 py-3 flex items-center gap-3">
+        <header className="bg-[#0D0D0D] border-b border-white/[0.07] px-4 md:px-6 py-3 flex items-center gap-3">
           <button
             onClick={() => { setSidebarOpen(!sidebarOpen); setMobileSidebarOpen(!mobileSidebarOpen); }}
-            className="p-2 rounded-xl hover:bg-gray-100 transition-all text-gray-500"
+            className="p-2 rounded-sm hover:bg-white/5 text-neutral-400 hover:text-white transition-all"
           >
             <Menu size={18} />
           </button>
 
           <div className="flex-1">
-            <h1 className="text-sm font-black text-gray-900 hidden sm:block">
+            <h1 className="text-xs font-bold uppercase tracking-wider font-mono-custom text-[#E8FF47] hidden sm:block">
               {visibleItems.find((i) => i.path === location.pathname)?.label || 'Dashboard'}
             </h1>
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="relative p-2 rounded-xl hover:bg-gray-100 transition-all text-gray-500">
-              <Bell size={18} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-violet-600" />
+            <button className="relative p-2 rounded-sm hover:bg-white/5 text-neutral-400 hover:text-white transition-all">
+              <Bell size={17} />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#E8FF47]" />
             </button>
-            <button className="p-2 rounded-xl hover:bg-gray-100 transition-all text-gray-500">
-              <Settings size={18} />
+            <button className="p-2 rounded-sm hover:bg-white/5 text-neutral-400 hover:text-white transition-all">
+              <Settings size={17} />
             </button>
             {user && (
-              <div className="w-8 h-8 rounded-xl gradient-primary flex items-center justify-center text-white text-sm font-black">
-                {user.name.charAt(0)}
+              <div className="w-8 h-8 rounded-sm bg-[#E8FF47] flex items-center justify-center text-black text-xs font-bold shadow-sm">
+                {user.name.charAt(0).toUpperCase()}
               </div>
             )}
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-[#0A0A0A]">
           {children}
         </main>
       </div>
