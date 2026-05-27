@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
@@ -34,12 +34,16 @@ const FILTER_TABS: { label: string; value: string }[] = [
 ];
 
 export const OrdersManagementPage: React.FC = () => {
-  const { orders, updateOrderStatus, openOrderDrawer, closeOrderDrawer, selectedOrder, isOrderDrawerOpen } = useDashboardStore();
+  const { orders, isLoadingOrders, fetchOrders, updateOrderStatus, openOrderDrawer, closeOrderDrawer, selectedOrder, isOrderDrawerOpen } = useDashboardStore();
   const { user } = useAuthStore();
   const [filterStatus, setFilterStatus] = useState('all');
   const [search, setSearch] = useState('');
 
   const isAdmin = user?.role === 'admin';
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const filteredOrders = orders.filter((order) => {
     const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
@@ -159,7 +163,7 @@ export const OrdersManagementPage: React.FC = () => {
                       <div className="flex items-center justify-end gap-2">
                         {STATUS_TRANSITIONS[order.status] && (
                           <button
-                            onClick={() => updateOrderStatus(order.id, STATUS_TRANSITIONS[order.status]!)}
+                            onClick={async () => { await updateOrderStatus(order.id, STATUS_TRANSITIONS[order.status]!); }}
                             className="px-3 py-1.5 rounded-lg text-xs font-bold gradient-primary text-white hover:opacity-90 transition-all"
                           >
                             → {getNextStatusLabel(order.status)}
@@ -179,7 +183,13 @@ export const OrdersManagementPage: React.FC = () => {
             </tbody>
           </table>
 
-          {filteredOrders.length === 0 && (
+
+
+          {isLoadingOrders && (
+            <div className="text-center py-6 text-sm text-gray-500">Loading live orders...</div>
+          )}
+
+          {filteredOrders.length === 0 && !isLoadingOrders && (
             <div className="text-center py-16">
               <Package size={40} className="text-gray-200 mx-auto mb-3" />
               <p className="font-bold text-gray-900">No orders found</p>
@@ -228,8 +238,8 @@ export const OrdersManagementPage: React.FC = () => {
                   </div>
                   {STATUS_TRANSITIONS[selectedOrder.status] && (
                     <button
-                      onClick={() => {
-                        updateOrderStatus(selectedOrder.id, STATUS_TRANSITIONS[selectedOrder.status]!);
+                      onClick={async () => {
+                        await updateOrderStatus(selectedOrder.id, STATUS_TRANSITIONS[selectedOrder.status]!);
                       }}
                       className="w-full py-2.5 rounded-xl gradient-primary text-white text-sm font-bold hover:opacity-90 transition-all"
                     >

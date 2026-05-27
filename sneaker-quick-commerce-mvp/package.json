@@ -21,7 +21,8 @@
     "recharts": "^3.8.1",
     "tailwind-merge": "3.4.0",
     "zod": "^4.4.3",
-    "zustand": "^5.0.13"
+    "zustand": "^5.0.13",
+    "@supabase/supabase-js": "^2.57.4"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.17",
