@@ -81,36 +81,31 @@ export async function submitOrder(cartItems: CartLineItem[], customer: CheckoutD
     updatedAt: new Date().toISOString(),
   };
 
+  const dbOrderId = ensureUUID(orderId);
+  const dbUserId = ensureUUID(userId);
+  const dbStoreId = ensureUUID('store-001'); // fallback to a valid uuid format
+
   console.log('[submitOrder] Saving local order:', newOrder);
   saveOrder(newOrder);
 
   if (isSupabaseConfigured) {
     console.log('[submitOrder] Supabase is configured. Inserting order into database...');
     try {
-      // 1. Insert into Orders table
-      const { error: orderError } = await supabase.from('Orders').insert({
-        id: orderId,
-        user_id: userId,
-        store_id: 'store-001',
-        status: 'placed',
+      // 1. Insert into orders table (lowercase, flat columns matching user schema)
+      const { error: orderError } = await supabase.from('orders').insert({
+        id: dbOrderId,
+        user_id: dbUserId,
+        store_id: dbStoreId,
+        status: 'Pending', // Match their enum ('Pending', 'Packed', 'Ready for Delivery', 'Delivered')
         payment_method: customer.paymentMethod === 'razorpay' ? 'card' : 'cod',
-        payment_status: customer.paymentMethod === 'razorpay' ? 'paid' : 'pending',
         subtotal,
         delivery_fee: deliveryFee,
-        discount,
         total,
-        estimated_delivery: newOrder.estimatedDelivery,
-        rider_name: 'Anil Kumar',
-        address: {
-          label: 'Home',
-          line1: customer.addressLine1,
-          area: customer.city,
-          city: customer.city,
-          pincode: customer.postalCode,
-        },
-        timeline: [
-          { status: 'placed', timestamp: new Date().toISOString() }
-        ],
+        delivery_label: 'Home',
+        delivery_line1: customer.addressLine1,
+        delivery_area: customer.city,
+        delivery_city: customer.city,
+        delivery_pincode: customer.postalCode,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       });
@@ -118,18 +113,17 @@ export async function submitOrder(cartItems: CartLineItem[], customer: CheckoutD
       if (orderError) {
         console.error('[submitOrder] Failed to insert order into Supabase database:', orderError.message);
       } else {
-        // 2. Insert items into OrderItems table
+        // 2. Insert items into order_items table (lowercase table, unit_price column matching user schema)
         const dbOrderItems = cartItems.map((item, idx) => ({
-          id: `oi-${orderId}-${idx}-${Math.random().toString(36).slice(2, 6)}`,
-          order_id: orderId,
-          product_id: item.productId,
+          id: ensureUUID(`oi-${orderId}-${idx}`),
+          order_id: dbOrderId,
+          product_id: ensureUUID(item.productId),
           size: item.selectedSize,
           quantity: item.quantity,
-          price: item.price,
-          store_id: 'store-001'
+          unit_price: item.price
         }));
 
-        const { error: itemsError } = await supabase.from('OrderItems').insert(dbOrderItems);
+        const { error: itemsError } = await supabase.from('order_items').insert(dbOrderItems);
         if (itemsError) {
           console.error('[submitOrder] Failed to insert order items into Supabase database:', itemsError.message);
         } else {
@@ -143,3 +137,32 @@ export async function submitOrder(cartItems: CartLineItem[], customer: CheckoutD
 
   return { success: true, orderId };
 }
+
+// Helper to ensure IDs match UUID format required by database schema
+function ensureUUID(str: string): string {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (uuidRegex.test(str)) return str;
+
+  // Generate a deterministic valid UUID from a string seed (fallback for mock IDs like prod-001)
+  if (str === 'store-001') return '11111111-1111-4111-a111-111111111111';
+  if (str.startsWith('prod-')) {
+    const num = str.replace('prod-', '');
+    return `22222222-2222-4222-b222-${num.padStart(12, '0')}`;
+  }
+  if (str.startsWith('user-')) {
+    const num = str.replace(/[^0-9]/g, '');
+    return `33333333-3333-4333-c333-${num.padStart(12, '0')}`;
+  }
+  if (str.startsWith('ORD-')) {
+    const num = str.replace(/[^0-9]/g, '');
+    return `44444444-4444-4444-d444-${num.padStart(12, '0')}`;
+  }
+  if (str.startsWith('oi-')) {
+    const num = str.replace(/[^0-9]/g, '');
+    return `55555555-5555-4555-e555-${num.padStart(12, '0')}`;
+  }
+
+  // Fallback default UUID
+  return '00000000-0000-4000-a000-000000000000';
+}
+
