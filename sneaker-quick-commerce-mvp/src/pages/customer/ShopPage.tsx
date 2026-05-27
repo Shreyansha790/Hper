@@ -73,7 +73,7 @@ export const ShopPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="text-4xl font-black text-gray-900">Exclusive Drops</h1>
-            <p className="text-gray-500 mt-2">{filtered.length} master replicas · 30-minute delivery guaranteed</p>
+            <p className="text-gray-500 mt-2">{filtered.length} premium alternatives · 30-minute delivery guaranteed</p>
           </motion.div>
         </div>
       </div>
@@ -86,7 +86,7 @@ export const ShopPage: React.FC = () => {
             <input
               value={searchQ}
               onChange={(e) => setSearchQ(e.target.value)}
-              placeholder="Search master replicas..."
+              placeholder="Search premium alternatives..."
               className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-white/40 bg-neutral-900 text-white"
             />
           </div>
@@ -233,7 +233,7 @@ export const ShopPage: React.FC = () => {
 
                   <Link to={`/product/${product.id}`}>
                     <div className="relative h-48 sm:h-56 bg-gradient-to-b from-neutral-900 to-black overflow-hidden -mt-8 pt-8">
-                      <span className="absolute top-3 right-3 z-20 px-2 py-1 rounded-full border border-white/20 bg-black/70 text-[10px] uppercase tracking-[0.18em] font-semibold text-white">1:1 Import</span>
+                      <span className="absolute top-3 right-3 z-20 px-2 py-1 rounded-full border border-white/20 bg-black/70 text-[10px] uppercase tracking-[0.18em] font-semibold text-white">Boutique Pick</span>
                       <img
                         src={product.images[0]}
                         alt={product.name}
