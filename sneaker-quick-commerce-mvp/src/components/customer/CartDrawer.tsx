@@ -7,7 +7,7 @@ import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 
 export const CartDrawer: React.FC = () => {
-  const { items, isOpen, closeCart, removeItem, updateQuantity, getSubtotal } = useCartStore();
+  const { items, isOpen, closeCart, removeItem, updateQuantity, clearCart, getSubtotal } = useCartStore();
   const subtotal = getSubtotal();
 
   return (
@@ -32,9 +32,19 @@ export const CartDrawer: React.FC = () => {
           >
             <div className="flex items-center justify-between p-5 border-b border-violet-100">
               <h2 className="text-lg font-bold text-gray-900">Your Cart</h2>
-              <button onClick={closeCart} className="p-2 rounded-xl hover:bg-violet-50 text-gray-500">
-                <X size={18} />
-              </button>
+              <div className="flex items-center gap-1">
+                {items.length > 0 && (
+                  <button
+                    onClick={clearCart}
+                    className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50"
+                  >
+                    Clear Cart
+                  </button>
+                )}
+                <button onClick={closeCart} className="p-2 rounded-xl hover:bg-violet-50 text-gray-500">
+                  <X size={18} />
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-3">

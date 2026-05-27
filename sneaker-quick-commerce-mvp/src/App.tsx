@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { LandingPage } from '@/pages/customer/LandingPage';
 import { ShopPage } from '@/pages/customer/ShopPage';
 import { ProductDetailPage } from '@/pages/customer/ProductDetailPage';
@@ -12,18 +12,30 @@ import { OverviewPage } from '@/pages/dashboard/OverviewPage';
 import { OrdersManagementPage } from '@/pages/dashboard/OrdersManagementPage';
 import { InventoryPage } from '@/pages/dashboard/InventoryPage';
 import { ProductsPage } from '@/pages/dashboard/ProductsPage';
+import { Navbar } from '@/components/customer/Navbar';
+import { CartDrawer } from '@/components/customer/CartDrawer';
+
+const CustomerLayout = () => (
+  <>
+    <Navbar />
+    <Outlet />
+    <CartDrawer />
+  </>
+);
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/shop" element={<ShopPage />} />
-      <Route path="/product/:id" element={<ProductDetailPage />} />
-      <Route path="/checkout" element={<CheckoutPage />} />
-      <Route path="/orders" element={<OrdersPage />} />
-      <Route path="/track-order" element={<OrderTrackingPage />} />
-      <Route path="/returns" element={<ReturnsPage />} />
-      <Route path="/auth" element={<AuthPage />} />
+      <Route element={<CustomerLayout />}>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/shop" element={<ShopPage />} />
+        <Route path="/product/:id" element={<ProductDetailPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/orders" element={<OrdersPage />} />
+        <Route path="/track-order" element={<OrderTrackingPage />} />
+        <Route path="/returns" element={<ReturnsPage />} />
+        <Route path="/auth" element={<AuthPage />} />
+      </Route>
 
       <Route
         path="/dashboard"
