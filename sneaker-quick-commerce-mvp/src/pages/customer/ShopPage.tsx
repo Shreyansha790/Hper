@@ -67,13 +67,13 @@ export const ShopPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white pt-20">
+    <div className="min-h-screen bg-black text-white pt-20">
       {/* Header */}
-      <div className="bg-gradient-to-br from-violet-50 to-purple-50 py-12">
+      <div className="bg-gradient-to-b from-neutral-950 via-black to-neutral-900 py-14 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="text-4xl font-black text-gray-900">All Sneakers</h1>
-            <p className="text-gray-500 mt-2">{filtered.length} styles available · Express delivery in your area</p>
+            <h1 className="text-4xl font-black text-gray-900">Exclusive Drops</h1>
+            <p className="text-gray-500 mt-2">{filtered.length} master replicas · 30-minute delivery guaranteed</p>
           </motion.div>
         </div>
       </div>
@@ -86,8 +86,8 @@ export const ShopPage: React.FC = () => {
             <input
               value={searchQ}
               onChange={(e) => setSearchQ(e.target.value)}
-              placeholder="Search sneakers..."
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white"
+              placeholder="Search master replicas..."
+              className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-white/40 bg-neutral-900 text-white"
             />
           </div>
           <div className="flex gap-2">
@@ -95,15 +95,15 @@ export const ShopPage: React.FC = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="appearance-none pl-4 pr-8 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white cursor-pointer"
+                className="appearance-none pl-4 pr-8 py-2.5 border border-white/15 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/40 bg-neutral-900 cursor-pointer"
               >
                 {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
-              <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
             </div>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-4 py-2.5 border rounded-xl text-sm font-medium transition-all ${showFilters ? 'bg-violet-600 text-white border-violet-600' : 'border-gray-200 text-gray-700 hover:border-gray-300 bg-white'}`}
+              className={`flex items-center gap-2 px-4 py-2.5 border rounded-xl text-sm font-medium transition-all ${showFilters ? 'bg-white text-black border-white' : 'border-white/20 text-gray-200 hover:border-white/40 bg-neutral-900'}`}
             >
               <SlidersHorizontal size={14} /> Filters
             </button>
@@ -119,11 +119,11 @@ export const ShopPage: React.FC = () => {
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden mb-6"
             >
-              <div className="p-5 bg-gray-50 rounded-2xl border border-gray-100 space-y-5">
+              <div className="p-5 bg-neutral-950 rounded-2xl border border-white/10 space-y-5">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-gray-900">Filters</h3>
+                  <h3 className="font-bold text-white">Filters</h3>
                   <button onClick={() => { setSelectedBrand('All'); setSelectedCategory('All'); setMaxPrice(35000); }}
-                    className="text-sm text-violet-600 hover:text-violet-700 font-medium"
+                    className="text-sm text-gray-300 hover:text-white font-medium"
                   >Reset all</button>
                 </div>
 
@@ -134,7 +134,7 @@ export const ShopPage: React.FC = () => {
                       <button
                         key={brand}
                         onClick={() => setSelectedBrand(brand)}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${selectedBrand === brand ? 'bg-violet-600 text-white' : 'bg-white border border-gray-200 text-gray-700 hover:border-violet-300'}`}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${selectedBrand === brand ? 'bg-white text-black' : 'bg-black border border-white/15 text-gray-300 hover:border-white/50'}`}
                       >
                         {brand}
                       </button>
@@ -149,7 +149,7 @@ export const ShopPage: React.FC = () => {
                       <button
                         key={cat}
                         onClick={() => setSelectedCategory(cat)}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${selectedCategory === cat ? 'bg-violet-600 text-white' : 'bg-white border border-gray-200 text-gray-700 hover:border-violet-300'}`}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${selectedCategory === cat ? 'bg-white text-black' : 'bg-black border border-white/15 text-gray-300 hover:border-white/50'}`}
                       >
                         {cat}
                       </button>
@@ -160,7 +160,7 @@ export const ShopPage: React.FC = () => {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-sm font-semibold text-gray-700">Max Price</p>
-                    <span className="text-sm font-bold text-violet-600">{formatCurrency(maxPrice)}</span>
+                    <span className="text-sm font-bold text-white">{formatCurrency(maxPrice)}</span>
                   </div>
                   <input
                     type="range"
@@ -169,9 +169,9 @@ export const ShopPage: React.FC = () => {
                     step={1000}
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(Number(e.target.value))}
-                    className="w-full accent-violet-600"
+                    className="w-full accent-white"
                   />
-                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <div className="flex justify-between text-xs text-gray-500 mt-1">
                     <span>₹5,000</span>
                     <span>₹35,000</span>
                   </div>
@@ -184,13 +184,13 @@ export const ShopPage: React.FC = () => {
         {/* Active Filters */}
         <div className="flex flex-wrap gap-2 mb-6">
           {selectedBrand !== 'All' && (
-            <span className="flex items-center gap-1 px-3 py-1 bg-violet-100 text-violet-700 text-xs font-semibold rounded-full">
+            <span className="flex items-center gap-1 px-3 py-1 bg-white text-black text-xs font-semibold rounded-full">
               {selectedBrand}
               <button onClick={() => setSelectedBrand('All')}><X size={10} /></button>
             </span>
           )}
           {selectedCategory !== 'All' && (
-            <span className="flex items-center gap-1 px-3 py-1 bg-violet-100 text-violet-700 text-xs font-semibold rounded-full">
+            <span className="flex items-center gap-1 px-3 py-1 bg-white text-black text-xs font-semibold rounded-full">
               {selectedCategory}
               <button onClick={() => setSelectedCategory('All')}><X size={10} /></button>
             </span>
@@ -215,7 +215,7 @@ export const ShopPage: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ delay: i * 0.05 }}
-                  className="group bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-card hover-lift"
+                  className="group bg-neutral-950 rounded-3xl overflow-hidden border border-white/10 shadow-card hover-lift"
                 >
                   {/* Badges */}
                   <div className="absolute top-3 left-3 z-10 flex gap-1 flex-wrap" style={{ position: 'relative' }}>
@@ -232,7 +232,8 @@ export const ShopPage: React.FC = () => {
                   </div>
 
                   <Link to={`/product/${product.id}`}>
-                    <div className="relative h-48 sm:h-56 bg-gradient-to-br from-gray-50 to-violet-50/20 overflow-hidden -mt-8 pt-8">
+                    <div className="relative h-48 sm:h-56 bg-gradient-to-b from-neutral-900 to-black overflow-hidden -mt-8 pt-8">
+                      <span className="absolute top-3 right-3 z-20 px-2 py-1 rounded-full border border-white/20 bg-black/70 text-[10px] uppercase tracking-[0.18em] font-semibold text-white">1:1 Import</span>
                       <img
                         src={product.images[0]}
                         alt={product.name}
@@ -242,22 +243,22 @@ export const ShopPage: React.FC = () => {
                   </Link>
 
                   <div className="p-4">
-                    <p className="text-[10px] font-bold text-violet-500 uppercase tracking-widest">{product.brand}</p>
+                    <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">{product.brand}</p>
                     <Link to={`/product/${product.id}`}>
-                      <h3 className="text-sm font-black text-gray-900 mt-0.5 leading-tight hover:text-violet-700 transition-colors line-clamp-2">
+                      <h3 className="text-sm font-black text-white mt-0.5 leading-tight hover:text-gray-300 transition-colors line-clamp-2">
                         {product.name}
                       </h3>
                     </Link>
                     <div className="flex items-center gap-1 mt-1.5">
                       <Star size={10} className="fill-amber-400 text-amber-400" />
-                      <span className="text-xs font-semibold text-gray-600">{product.rating}</span>
-                      <span className="text-xs text-gray-400">({product.reviewCount})</span>
+                      <span className="text-xs font-semibold text-gray-300">{product.rating}</span>
+                      <span className="text-xs text-gray-500">({product.reviewCount})</span>
                     </div>
                     <div className="flex items-center justify-between mt-3">
                       <div>
-                        <span className="text-base font-black text-gray-900">{formatCurrency(product.price)}</span>
+                        <span className="text-base font-black text-white">{formatCurrency(product.price)}</span>
                         {product.originalPrice > product.price && (
-                          <span className="text-xs text-gray-400 line-through ml-1">{formatCurrency(product.originalPrice)}</span>
+                          <span className="text-xs text-gray-500 line-through ml-1">{formatCurrency(product.originalPrice)}</span>
                         )}
                       </div>
                       <motion.button
