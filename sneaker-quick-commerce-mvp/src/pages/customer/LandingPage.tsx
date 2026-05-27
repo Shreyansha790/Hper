@@ -30,7 +30,7 @@ export const LandingPage: React.FC = () => {
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   const heroY      = useTransform(scrollYProgress, [0, 1], [0, 80]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-  const { addItem } = useCartStore();
+  const { addItem, openCart } = useCartStore();
 
   const featuredProducts = mockProducts.filter((p) => p.featured).slice(0, 3);
 
@@ -403,7 +403,10 @@ export const LandingPage: React.FC = () => {
                       )}
                     </div>
                     <button
-                      onClick={() => addItem(product, product.sizes[0]?.size || '9')}
+                      onClick={() => {
+                        addItem(product, product.sizes[Math.floor(product.sizes.length / 2)]?.size || '9');
+                        openCart();
+                      }}
                       className="px-4 py-2 bg-[#E8FF47] text-black text-xs font-bold rounded-sm hover:bg-[#d4eb30] transition-all hover:-translate-y-0.5 tracking-wider"
                     >
                       + ADD

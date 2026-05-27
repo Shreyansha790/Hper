@@ -7,6 +7,7 @@ import { OrdersPage } from '@/pages/customer/OrdersPage';
 import { OrderTrackingPage } from '@/pages/customer/OrderTrackingPage';
 import { ReturnsPage } from '@/pages/customer/ReturnsPage';
 import { AuthPage } from '@/pages/customer/AuthPage';
+import { ProfilePage } from '@/pages/customer/ProfilePage';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { OverviewPage } from '@/pages/dashboard/OverviewPage';
 import { OrdersManagementPage } from '@/pages/dashboard/OrdersManagementPage';
@@ -32,9 +33,10 @@ export default function App() {
         <Route path="/product/:id" element={<ProductDetailPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/orders" element={<OrdersPage />} />
-        <Route path="/track-order" element={<OrderTrackingPage />} />
+        <Route path="/track-order/:orderId" element={<OrderTrackingPage />} />
         <Route path="/returns" element={<ReturnsPage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
       <Route

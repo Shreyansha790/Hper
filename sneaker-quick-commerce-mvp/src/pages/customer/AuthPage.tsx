@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/Button';
 import type { Role } from '@/types';
 
 const DEMO_ACCOUNTS = [
-  { role: 'customer' as Role, email: 'customer@kicksfly.in', label: 'Demo Customer', color: 'from-violet-500 to-purple-600', emoji: '👟' },
-  { role: 'storekeeper' as Role, email: 'kiran@kicksfly.in', label: 'Demo Storekeeper', color: 'from-blue-500 to-indigo-600', emoji: '🏪' },
-  { role: 'admin' as Role, email: 'admin@kicksfly.in', label: 'Demo Admin', color: 'from-emerald-500 to-teal-600', emoji: '👑' },
+  { role: 'customer' as Role, email: 'customer@kicksfly.in', label: 'Demo Customer Account', color: 'from-violet-500/20 to-purple-600/20 text-violet-400 border border-violet-500/30', emoji: '👟' },
+  { role: 'storekeeper' as Role, email: 'kiran@kicksfly.in', label: 'Demo Storekeeper Dashboard', color: 'from-blue-500/20 to-indigo-600/20 text-blue-400 border border-blue-500/30', emoji: '🏪' },
+  { role: 'admin' as Role, email: 'admin@kicksfly.in', label: 'Demo Administrator Panel', color: 'from-emerald-500/20 to-teal-600/20 text-emerald-400 border border-emerald-500/30', emoji: '👑' },
 ];
 
 export const AuthPage: React.FC = () => {
@@ -48,62 +48,66 @@ export const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
-      {/* Background */}
-      <div className="absolute inset-0 gradient-subtle" />
-      <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-violet-200/30 blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-indigo-200/30 blur-3xl" />
+    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center pt-20 pb-12 px-4 relative overflow-hidden">
+      {/* Background glow blooms */}
+      <div className="absolute top-1/4 right-0 w-80 h-80 rounded-full bg-[#E8FF47]/[0.03] blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-[#E8FF47]/[0.02] blur-[80px] pointer-events-none" />
 
-      <div className="relative w-full max-w-md mx-auto px-4">
+      <div className="relative w-full max-w-md mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden"
+          className="bg-[#0D0D0D] rounded-sm shadow-[0_0_80px_rgba(0,0,0,0.9)] border border-white/[0.07] overflow-hidden"
         >
           {/* Header */}
           <div className="px-8 pt-8 pb-6">
             <div className="flex items-center gap-2 mb-6">
               {step === 'otp' && (
-                <button onClick={() => setStep('phone')} className="p-1.5 rounded-lg hover:bg-gray-100 transition-all mr-1">
+                <button onClick={() => setStep('phone')} className="p-1.5 rounded-sm hover:bg-white/5 text-neutral-400 hover:text-white transition-all mr-1">
                   <ChevronLeft size={16} />
                 </button>
               )}
-              <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center">
-                <Zap size={16} className="text-white fill-white" />
+              <div className="w-8 h-8 rounded-sm bg-[#E8FF47] flex items-center justify-center shadow-glow-sm">
+                <Zap size={15} className="text-black fill-black" />
               </div>
-              <span className="text-xl font-black">Kicks<span className="text-gradient">Fly</span></span>
+              <span className="font-display text-[20px] text-white tracking-wide leading-none">
+                KICKS<span className="text-[#E8FF47]">FLY</span>
+              </span>
             </div>
 
             <AnimatePresence mode="wait">
               {step === 'phone' ? (
-                <motion.div key="phone" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-                  <h1 className="text-3xl font-black text-gray-900">Welcome!</h1>
-                  <p className="text-gray-500 text-sm mt-2">Enter your phone to get started</p>
+                <motion.div key="phone" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}>
+                  <h1 className="font-display text-3xl tracking-wider text-white uppercase">Welcome back</h1>
+                  <p className="text-neutral-500 text-xs mt-2 font-mono-custom">Enter your mobile number to check in</p>
 
                   <form onSubmit={handleSendOtp} className="mt-6 space-y-4">
-                    <div className="relative">
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 border-r border-gray-200 pr-2">
-                        <span className="text-sm">🇮🇳</span>
-                        <span className="text-sm font-semibold text-gray-700">+91</span>
+                    <div>
+                      <label className="block text-[10px] font-mono-custom text-neutral-400 uppercase tracking-wider mb-1.5">Mobile Number</label>
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 border-r border-white/10 pr-2 font-mono-custom text-xs font-bold text-neutral-400">
+                          <span>🇮🇳</span>
+                          <span>+91</span>
+                        </div>
+                        <input
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                          placeholder="Enter 10 digits"
+                          className="w-full pl-20 pr-4 py-3 bg-[#111111] border border-white/10 rounded-sm text-sm text-white placeholder-neutral-700 focus:outline-none focus:border-[#E8FF47]/40 focus:ring-1 focus:ring-[#E8FF47]/20 transition-all font-mono-custom"
+                        />
                       </div>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                        placeholder="Enter mobile number"
-                        className="w-full pl-24 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-                      />
                     </div>
-                    <Button type="submit" variant="primary" fullWidth size="lg" disabled={phone.length < 10} rightIcon={<ArrowRight size={16} />}>
-                      Send OTP
+                    <Button type="submit" variant="accent" fullWidth size="lg" disabled={phone.length < 10} rightIcon={<ArrowRight size={14} />}>
+                      Send OTP Code
                     </Button>
                   </form>
                 </motion.div>
               ) : (
-                <motion.div key="otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                  <h1 className="text-3xl font-black text-gray-900">Verify OTP</h1>
-                  <p className="text-gray-500 text-sm mt-2">
-                    Sent to +91 {phone} · <button className="text-violet-600 font-semibold" onClick={() => setStep('phone')}>Change</button>
+                <motion.div key="otp" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }}>
+                  <h1 className="font-display text-3xl tracking-wider text-white uppercase">Verify OTP</h1>
+                  <p className="text-neutral-500 text-xs mt-2 font-mono-custom">
+                    Sent to +91 {phone} · <button className="text-[#E8FF47] font-semibold underline" onClick={() => setStep('phone')}>Change</button>
                   </p>
 
                   <div className="flex gap-2 mt-6">
@@ -116,18 +120,18 @@ export const AuthPage: React.FC = () => {
                         maxLength={1}
                         value={digit}
                         onChange={(e) => handleOtpChange(i, e.target.value)}
-                        className="w-full aspect-square rounded-xl border-2 border-gray-200 text-center text-xl font-black focus:border-violet-500 focus:outline-none transition-all"
+                        className="w-full aspect-square bg-[#111111] border border-white/10 rounded-sm text-center text-lg font-bold text-[#E8FF47] focus:border-[#E8FF47]/50 focus:outline-none transition-all font-mono-custom"
                       />
                     ))}
                   </div>
 
-                  <p className="text-xs text-gray-400 mt-3 text-center">
-                    Demo: use any 6 digits
+                  <p className="text-[10px] text-neutral-600 mt-3 text-center font-mono-custom">
+                    Demo Mode: enter any 6 digits to verify
                   </p>
 
                   <Button
                     className="mt-4"
-                    variant="primary"
+                    variant="accent"
                     fullWidth
                     size="lg"
                     isLoading={isLoading}
@@ -140,12 +144,12 @@ export const AuthPage: React.FC = () => {
             </AnimatePresence>
           </div>
 
-          {/* Demo Accounts */}
+          {/* Quick Demo Login Accounts */}
           <div className="px-8 pb-8">
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 h-px bg-gray-200" />
-              <span className="text-xs font-semibold text-gray-400">Quick Demo Login</span>
-              <div className="flex-1 h-px bg-gray-200" />
+              <div className="flex-1 h-px bg-white/[0.08]" />
+              <span className="text-[9px] font-mono-custom font-bold text-neutral-500 uppercase tracking-widest">Quick Demo Login</span>
+              <div className="flex-1 h-px bg-white/[0.08]" />
             </div>
 
             <div className="space-y-2">
@@ -153,23 +157,23 @@ export const AuthPage: React.FC = () => {
                 <button
                   key={acc.role}
                   onClick={() => handleLogin(acc.email)}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-violet-200 hover:bg-violet-50 transition-all text-left"
+                  className="w-full flex items-center gap-3 p-3 bg-[#111111] border border-white/10 rounded-sm hover:border-[#E8FF47]/40 hover:bg-[#E8FF47]/[0.02] transition-all text-left"
                 >
-                  <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${acc.color} flex items-center justify-center text-lg flex-shrink-0`}>
+                  <div className={`w-9 h-9 rounded-sm bg-gradient-to-br ${acc.color} flex items-center justify-center text-lg flex-shrink-0 shadow-sm`}>
                     {acc.emoji}
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">{acc.label}</p>
-                    <p className="text-xs text-gray-500">{acc.email}</p>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-white uppercase tracking-wider">{acc.label}</p>
+                    <p className="text-[10px] text-neutral-500 font-mono-custom truncate mt-0.5">{acc.email}</p>
                   </div>
-                  <ArrowRight size={14} className="ml-auto text-gray-300" />
+                  <ArrowRight size={13} className="ml-auto text-neutral-600 flex-shrink-0" />
                 </button>
               ))}
             </div>
 
-            <div className="mt-6 flex items-center gap-2 text-xs text-gray-400">
-              <Shield size={12} />
-              <span>Your data is encrypted and secure</span>
+            <div className="mt-6 flex items-center gap-2 text-[10px] text-neutral-600 font-mono-custom uppercase tracking-wide">
+              <Shield size={12} className="text-[#E8FF47]" />
+              <span>Secure 256-bit encrypted authentication</span>
             </div>
           </div>
         </motion.div>
