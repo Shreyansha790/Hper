@@ -23,7 +23,7 @@ import {
   Bar,
 } from 'recharts';
 import { Link } from 'react-router-dom';
-import { mockAnalytics, mockRevenueData } from '@/lib/mock';
+import { mockInventory, mockReturnRequests } from '@/lib/mock';
 import { formatCurrency, getOrderStatusColor, getOrderStatusLabel } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
 import { useDashboardStore } from '@/store/dashboardStore';
@@ -33,26 +33,24 @@ const MetricCard: React.FC<{
   value: string;
   change: number;
   icon: React.ReactNode;
-  color: string;
-  bg: string;
   index: number;
-}> = ({ title, value, change, icon, color, bg, index }) => (
+}> = ({ title, value, change, icon, index }) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
+    initial={{ opacity: 0, y: 16 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: index * 0.1 }}
-    className="bg-white rounded-2xl border border-gray-100 shadow-card p-5"
+    transition={{ delay: index * 0.08 }}
+    className="bg-[#111111] border border-white/[0.07] rounded-sm p-5 shadow-card hover:border-white/15 transition-all"
   >
     <div className="flex items-start justify-between">
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-gray-500 font-medium">{title}</p>
-        <p className="text-2xl font-black text-gray-900 mt-1">{value}</p>
-        <div className={`flex items-center gap-1 mt-1.5 text-sm font-semibold ${change >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-          <TrendingUp size={12} className={change < 0 ? 'rotate-180' : ''} />
-          {Math.abs(change)}% vs last week
+        <p className="text-[10px] font-mono-custom text-neutral-500 uppercase tracking-wider">{title}</p>
+        <p className="text-2xl font-bold text-white mt-1 font-mono-custom">{value}</p>
+        <div className="flex items-center gap-1 mt-1.5 text-xs font-mono-custom font-bold text-emerald-400">
+          <TrendingUp size={10} />
+          {change}% vs last week
         </div>
       </div>
-      <div className={`w-11 h-11 rounded-2xl ${bg} flex items-center justify-center flex-shrink-0 ${color}`}>
+      <div className="w-10 h-10 rounded-sm bg-[#E8FF47]/10 border border-[#E8FF47]/20 flex items-center justify-center flex-shrink-0 text-[#E8FF47]">
         {icon}
       </div>
     </div>
@@ -68,6 +66,33 @@ export const OverviewPage: React.FC = () => {
   }, [fetchOrders]);
 
   const recentOrders = orders.slice(0, 4);
+
+  // Group real orders dynamically by date for the charts!
+  const revenueData = useMemo(() => {
+    const dailyData: Record<string, { date: string; revenue: number; orders: number }> = {};
+    
+    // Default last 11 days (starting 10 days ago to today) with zeros so the chart renders cleanly
+    for (let i = 10; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+      dailyData[dateStr] = { date: dateStr, revenue: 0, orders: 0 };
+    }
+
+    orders.forEach((order) => {
+      const orderDate = new Date(order.createdAt);
+      const dateStr = orderDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+      if (dailyData[dateStr]) {
+        dailyData[dateStr].revenue += order.total;
+        dailyData[dateStr].orders += 1;
+      } else {
+        // Fallback for orders older than 11 days
+        dailyData[dateStr] = { date: dateStr, revenue: order.total, orders: 1 };
+      }
+    });
+
+    return Object.values(dailyData);
+  }, [orders]);
 
   const topProducts = useMemo(() => {
     const productsMap = new Map<string, {
@@ -119,6 +144,10 @@ export const OverviewPage: React.FC = () => {
 
     const activeCustomers = new Set(orders.map((order) => order.userId)).size;
 
+    // Real-time stock alerts and return requests
+    const lowStockItems = mockInventory.filter((inv) => inv.quantity <= inv.lowStockThreshold).length;
+    const returnRequests = mockReturnRequests.length;
+
     return {
       totalRevenue,
       totalOrders,
@@ -126,131 +155,133 @@ export const OverviewPage: React.FC = () => {
       pendingOrders,
       deliveredToday,
       activeCustomers,
+      lowStockItems,
+      returnRequests,
     };
   }, [orders]);
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
-      {/* Welcome */}
+    <div className="p-4 md:p-6 space-y-6 bg-[#0A0A0A] text-white">
+      {/* Welcome header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-gray-900">
+          <h1 className="font-display text-3xl tracking-wider text-white uppercase">
             Good morning, {user?.name?.split(' ')[0]} 👋
           </h1>
-          <p className="text-gray-500 text-sm mt-1">Here's what's happening with KicksFly today.</p>
+          <p className="text-neutral-500 text-xs mt-1 font-mono-custom">Operations summary and real-time storefront overview</p>
         </div>
-        <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-violet-50 rounded-xl border border-violet-100">
-          <Zap size={14} className="text-violet-600 fill-violet-600" />
-          <span className="text-sm font-bold text-violet-700">{metrics.deliveredToday} delivered today</span>
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-[#E8FF47]/10 border border-[#E8FF47]/20 rounded-sm">
+          <Zap size={12} className="text-[#E8FF47] fill-[#E8FF47]" />
+          <span className="text-xs font-bold font-mono-custom text-[#E8FF47] uppercase tracking-wider">{metrics.deliveredToday} delivered today</span>
         </div>
       </div>
 
-      {/* Metrics */}
+      {/* Metrics Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard title="Total Revenue" value={formatCurrency(metrics.totalRevenue)} change={0} icon={<TrendingUp size={20} />} color="text-violet-600" bg="bg-violet-100" index={0} />
-        <MetricCard title="Total Orders" value={metrics.totalOrders.toString()} change={0} icon={<ShoppingCart size={20} />} color="text-blue-600" bg="bg-blue-100" index={1} />
-        <MetricCard title="Avg Order Value" value={formatCurrency(metrics.avgOrderValue)} change={0} icon={<Package size={20} />} color="text-emerald-600" bg="bg-emerald-100" index={2} />
-        <MetricCard title="Active Customers" value={metrics.activeCustomers.toString()} change={0} icon={<Users size={20} />} color="text-orange-600" bg="bg-orange-100" index={3} />
+        <MetricCard title="Total Revenue" value={formatCurrency(metrics.totalRevenue)} change={0} icon={<TrendingUp size={18} />} index={0} />
+        <MetricCard title="Total Orders" value={metrics.totalOrders.toString()} change={0} icon={<ShoppingCart size={18} />} index={1} />
+        <MetricCard title="Avg Order Value" value={formatCurrency(metrics.avgOrderValue)} change={0} icon={<Package size={18} />} index={2} />
+        <MetricCard title="Active Customers" value={metrics.activeCustomers.toString()} change={0} icon={<Users size={18} />} index={3} />
       </div>
 
-      {/* Alert Cards */}
+      {/* Dynamic Status / Alert Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Pending Orders', value: metrics.pendingOrders, icon: <ShoppingCart size={16} />, color: 'text-amber-600 bg-amber-50 border-amber-200', path: '/dashboard/orders' },
-          { label: 'Delivered Today', value: metrics.deliveredToday, icon: <Truck size={16} />, color: 'text-emerald-600 bg-emerald-50 border-emerald-200', path: '/dashboard/orders' },
-          { label: 'Low Stock Alerts', value: mockAnalytics.lowStockItems, icon: <AlertTriangle size={16} />, color: 'text-red-500 bg-red-50 border-red-200', path: '/dashboard/inventory' },
-          { label: 'Return Requests', value: mockAnalytics.returnRequests, icon: <RotateCcw size={16} />, color: 'text-violet-600 bg-violet-50 border-violet-200', path: '/dashboard/returns' },
+          { label: 'Pending Orders', value: metrics.pendingOrders, icon: <ShoppingCart size={14} />, color: 'text-[#E8FF47] bg-[#E8FF47]/5 border-white/10 hover:border-[#E8FF47]/40', path: '/dashboard/orders' },
+          { label: 'Delivered Today', value: metrics.deliveredToday, icon: <Truck size={14} />, color: 'text-emerald-400 bg-emerald-950/10 border-white/10 hover:border-emerald-500/40', path: '/dashboard/orders' },
+          { label: 'Low Stock Alerts', value: metrics.lowStockItems, icon: <AlertTriangle size={14} />, color: 'text-red-400 bg-red-950/10 border-white/10 hover:border-red-500/40', path: '/dashboard/inventory' },
+          { label: 'Return Requests', value: metrics.returnRequests, icon: <RotateCcw size={14} />, color: 'text-violet-400 bg-violet-950/10 border-white/10 hover:border-violet-500/40', path: '/dashboard/returns' },
         ].map((item) => (
           <Link key={item.label} to={item.path}>
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 1, scale: 1 }}
-              className={`flex items-center gap-3 p-3 rounded-xl border ${item.color} hover:shadow-md transition-all cursor-pointer`}
+              className={`flex items-center gap-3 p-3.5 rounded-sm border ${item.color} transition-all cursor-pointer group`}
             >
               <span>{item.icon}</span>
               <div>
-                <p className="text-lg font-black">{item.value}</p>
-                <p className="text-xs font-semibold opacity-75">{item.label}</p>
+                <p className="text-lg font-bold font-mono-custom text-white">{item.value}</p>
+                <p className="text-[10px] font-bold font-mono-custom uppercase tracking-wider opacity-60 mt-0.5">{item.label}</p>
               </div>
-              <ArrowRight size={12} className="ml-auto opacity-50" />
+              <ArrowRight size={12} className="ml-auto opacity-30 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all text-white" />
             </motion.div>
           </Link>
         ))}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Revenue Chart */}
+        {/* Revenue Trend Chart */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-card p-5"
+          transition={{ delay: 0.2 }}
+          className="lg:col-span-2 bg-[#111111] border border-white/[0.07] rounded-sm p-5 shadow-card"
         >
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-6 pb-2 border-b border-white/[0.05]">
             <div>
-              <h3 className="font-black text-gray-900">Revenue Trend</h3>
-              <p className="text-xs text-gray-500 mt-0.5">Last 11 days performance</p>
+              <h3 className="font-display text-lg tracking-wider uppercase text-white">Revenue Trend</h3>
+              <p className="text-[10px] text-neutral-500 font-mono-custom mt-0.5 uppercase tracking-wide">Dynamic revenue grouped by date</p>
             </div>
-            <span className="px-3 py-1 bg-violet-100 text-violet-700 text-xs font-bold rounded-full">Daily</span>
+            <span className="px-2 py-0.5 bg-[#E8FF47] text-black text-[9px] font-mono-custom font-bold uppercase rounded-sm">Daily</span>
           </div>
           <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={mockRevenueData}>
+            <AreaChart data={revenueData}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#E8FF47" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#E8FF47" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} />
-              <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+              <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#666666', fontFamily: 'Space Mono' }} />
+              <YAxis tick={{ fontSize: 9, fill: '#666666', fontFamily: 'Space Mono' }} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
               <Tooltip
                 formatter={(value) => [formatCurrency(Number(value)), 'Revenue']}
-                contentStyle={{ borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
+                contentStyle={{ backgroundColor: '#0D0D0D', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontFamily: 'Space Mono', fontSize: '11px' }}
               />
               <Area
                 type="monotone"
                 dataKey="revenue"
-                stroke="#7c3aed"
-                strokeWidth={2.5}
+                stroke="#E8FF47"
+                strokeWidth={2}
                 fill="url(#colorRevenue)"
               />
             </AreaChart>
           </ResponsiveContainer>
         </motion.div>
 
-        {/* Top Products */}
+        {/* Top Selling Products */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-white rounded-2xl border border-gray-100 shadow-card p-5"
+          transition={{ delay: 0.25 }}
+          className="bg-[#111111] border border-white/[0.07] rounded-sm p-5 shadow-card"
         >
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="font-black text-gray-900">Top Products</h3>
-            <Link to="/dashboard/products" className="text-xs text-violet-600 font-semibold">View all</Link>
+          <div className="flex items-center justify-between mb-6 pb-2 border-b border-white/[0.05]">
+            <h3 className="font-display text-lg tracking-wider uppercase text-white">Top Products</h3>
+            <Link to="/dashboard/products" className="text-xs text-[#E8FF47] font-bold font-mono-custom uppercase tracking-wide">View all</Link>
           </div>
           <div className="space-y-4">
             {isLoadingOrders ? (
-              <p className="text-sm text-gray-500">Loading live products...</p>
+              <p className="text-xs font-mono-custom text-neutral-500 uppercase">Loading products...</p>
             ) : topProducts.length === 0 ? (
-              <p className="text-sm text-gray-500">No product sales yet.</p>
+              <p className="text-xs font-mono-custom text-neutral-500 uppercase">No catalog sales logged</p>
             ) : topProducts.map((tp, i) => (
               <div key={tp.productId} className="flex items-center gap-3">
-                <span className="text-sm font-black text-gray-300 w-4">{i + 1}</span>
+                <span className="text-xs font-bold font-mono-custom text-neutral-700 w-4">{i + 1}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-gray-500 uppercase">{tp.brand}</p>
-                  <p className="text-sm font-bold text-gray-900 truncate">{tp.name}</p>
-                  <div className="mt-1 bg-gray-100 rounded-full h-1">
+                  <p className="text-[9px] font-bold font-mono-custom text-[#E8FF47] uppercase tracking-wider">{tp.brand}</p>
+                  <p className="text-sm font-bold text-white truncate leading-tight mt-0.5">{tp.name}</p>
+                  <div className="mt-2 bg-white/5 rounded-full h-1">
                     <div
-                      className="h-1 rounded-full gradient-primary"
+                      className="h-1 rounded-full bg-[#E8FF47]"
                       style={{ width: `${(tp.revenue / (topProducts[0]?.revenue || 1)) * 100}%` }}
                     />
                   </div>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <p className="text-xs font-black text-gray-900">{formatCurrency(tp.revenue)}</p>
-                  <p className="text-[10px] text-gray-400">{tp.unitsSold} sold</p>
+                  <p className="text-xs font-bold text-white font-mono-custom">{formatCurrency(tp.revenue)}</p>
+                  <p className="text-[9px] text-neutral-500 font-mono-custom mt-0.5">{tp.unitsSold} sold</p>
                 </div>
               </div>
             ))}
@@ -258,55 +289,55 @@ export const OverviewPage: React.FC = () => {
         </motion.div>
       </div>
 
-      {/* Orders Chart + Recent Orders */}
+      {/* Daily Orders Bar Chart + Recent Orders */}
       <div className="grid lg:grid-cols-2 gap-6">
-        {/* Orders Bar Chart */}
+        {/* Daily Orders Bar Chart */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-white rounded-2xl border border-gray-100 shadow-card p-5"
+          transition={{ delay: 0.3 }}
+          className="bg-[#111111] border border-white/[0.07] rounded-sm p-5 shadow-card"
         >
-          <h3 className="font-black text-gray-900 mb-5">Daily Orders</h3>
+          <h3 className="font-display text-lg tracking-wider uppercase text-white mb-6 pb-2 border-b border-white/[0.05]">Daily Orders</h3>
           <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={mockRevenueData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} />
-              <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} />
+            <BarChart data={revenueData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+              <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#666666', fontFamily: 'Space Mono' }} />
+              <YAxis tick={{ fontSize: 9, fill: '#666666', fontFamily: 'Space Mono' }} />
               <Tooltip
-                contentStyle={{ borderRadius: '12px', border: '1px solid #e5e7eb' }}
+                contentStyle={{ backgroundColor: '#0D0D0D', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontFamily: 'Space Mono', fontSize: '11px' }}
               />
-              <Bar dataKey="orders" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="orders" fill="#E8FF47" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
 
-        {/* Recent Orders */}
+        {/* Recent Orders List */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="bg-white rounded-2xl border border-gray-100 shadow-card p-5"
+          transition={{ delay: 0.35 }}
+          className="bg-[#111111] border border-white/[0.07] rounded-sm p-5 shadow-card"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-black text-gray-900">Recent Orders</h3>
-            <Link to="/dashboard/orders" className="text-xs text-violet-600 font-semibold">View all</Link>
+          <div className="flex items-center justify-between mb-4 pb-2 border-b border-white/[0.05]">
+            <h3 className="font-display text-lg tracking-wider uppercase text-white">Recent Orders</h3>
+            <Link to="/dashboard/orders" className="text-xs text-[#E8FF47] font-bold font-mono-custom uppercase tracking-wide">View all</Link>
           </div>
           <div className="space-y-3">
             {recentOrders.map((order) => (
-              <div key={order.id} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-                <div className="w-8 h-8 rounded-xl gradient-primary flex items-center justify-center text-white text-xs font-black flex-shrink-0">
-                  {order.user?.name?.charAt(0) || 'C'}
+              <div key={order.id} className="flex items-center gap-3 py-2.5 border-b border-white/[0.04] last:border-0">
+                <div className="w-8 h-8 rounded-sm bg-[#E8FF47]/10 border border-[#E8FF47]/20 flex items-center justify-center text-[#E8FF47] text-xs font-bold flex-shrink-0">
+                  {order.user?.name?.charAt(0).toUpperCase() || 'C'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-gray-900 truncate">{order.user?.name}</p>
-                  <p className="text-xs text-gray-500">{order.items.length} item{order.items.length > 1 ? 's' : ''} · {order.store?.area}</p>
+                  <p className="text-xs font-bold text-white truncate">{order.user?.name}</p>
+                  <p className="text-[10px] text-neutral-500 font-mono-custom mt-0.5">{order.items.length} item{order.items.length > 1 ? 's' : ''} · {order.store?.area}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${getOrderStatusColor(order.status)}`}>
+                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider font-mono-custom ${getOrderStatusColor(order.status)}`}>
                     {getOrderStatusLabel(order.status)}
                   </span>
-                  <p className="text-xs font-black text-gray-900 mt-0.5">{formatCurrency(order.total)}</p>
+                  <p className="text-xs font-bold text-white mt-1 font-mono-custom">{formatCurrency(order.total)}</p>
                 </div>
               </div>
             ))}
