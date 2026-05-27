@@ -42,11 +42,11 @@
     background: #f1f1f1;
   }
   ::-webkit-scrollbar-thumb {
-    background: #c084fc;
+    background: #5e5e5e;
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #9333ea;
+    background: #2b2b2b;
   }
 }
 
@@ -73,19 +73,19 @@
   }
 
   .gradient-primary {
-    background: linear-gradient(135deg, #7e22ce 0%, #a855f7 50%, #c084fc 100%);
+    background: linear-gradient(135deg, #111111 0%, #2a2a2a 52%, #5a5a5a 100%);
   }
 
   .gradient-subtle {
-    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 50%, #ede9fe 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #f3f3f3 50%, #e5e5e5 100%);
   }
 
   .gradient-dark {
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a0533 50%, #0a0a0a 100%);
+    background: linear-gradient(135deg, #050505 0%, #171717 50%, #050505 100%);
   }
 
   .text-gradient {
-    background: linear-gradient(135deg, #7e22ce, #a855f7, #c084fc);
+    background: linear-gradient(135deg, #0f0f0f, #3d3d3d, #7a7a7a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -99,11 +99,11 @@
   }
 
   .shadow-glow {
-    box-shadow: 0 0 40px rgba(168, 85, 247, 0.3);
+    box-shadow: 0 0 40px rgba(107, 107, 107, 0.25);
   }
 
   .shadow-glow-sm {
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+    box-shadow: 0 0 20px rgba(92, 92, 92, 0.2);
   }
 
   .shadow-premium {
@@ -116,7 +116,7 @@
 
   .border-gradient {
     border: 1px solid;
-    border-image: linear-gradient(135deg, #a855f7, #c084fc) 1;
+    border-image: linear-gradient(135deg, #1f1f1f, #6f6f6f) 1;
   }
 
   .hover-lift {
@@ -125,7 +125,7 @@
 
   .hover-lift:hover {
     transform: translateY(-4px);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(168, 85, 247, 0.2);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(88, 88, 88, 0.24);
   }
 
   .animate-float {

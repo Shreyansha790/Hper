@@ -33,8 +33,8 @@ const features = [
   },
   {
     icon: <Shield size={20} />,
-    title: 'Premium UA Quality',
-    desc: 'Crafted with exact 1:1 precision, utilizing high-grade materials for an identical look and feel.',
+    title: 'Luxury Craftsmanship',
+    desc: 'Curated with high-grade materials, premium finishing, and detail-first construction.',
     color: 'text-blue-600 bg-blue-50',
   },
   {
@@ -94,7 +94,7 @@ export const LandingPage: React.FC = () => {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-violet-200 mb-6"
             >
               <Sparkles size={14} className="text-violet-600" />
-              <span className="text-sm font-semibold text-violet-700">Bangalore's Fastest Top-Tier Import Delivery</span>
+              <span className="text-sm font-semibold text-violet-700">Bangalore's Fastest Premium Sneaker Concierge</span>
             </motion.div>
 
             <motion.h1
@@ -103,7 +103,7 @@ export const LandingPage: React.FC = () => {
               transition={{ delay: 0.2 }}
               className="text-6xl sm:text-7xl lg:text-8xl font-black text-gray-900 leading-none tracking-tight"
             >
-              Premium 1:1 Master Copies
+              Premium Sneaker Drops
               <br />
               <span className="text-gradient">In 30</span>
               <br />
@@ -116,7 +116,7 @@ export const LandingPage: React.FC = () => {
               transition={{ delay: 0.3 }}
               className="mt-6 text-lg text-gray-600 leading-relaxed max-w-md"
             >
-              Nike. Jordan. Yeezy. New Balance. Discover top-tier imports and master replicas delivered express from our city warehouses. No waiting, no compromise.
+              Nike. Jordan. Yeezy. New Balance. Discover premium alternatives delivered express from our city warehouses. No waiting, no compromise.
             </motion.p>
 
             <motion.div
@@ -321,7 +321,7 @@ export const LandingPage: React.FC = () => {
           >
             <div>
               <p className="text-sm font-semibold text-violet-600 uppercase tracking-wide mb-2">🔥 Hot Right Now</p>
-              <h2 className="text-4xl font-black text-gray-900">Featured Master Replicas</h2>
+              <h2 className="text-4xl font-black text-gray-900">Featured Boutique Picks</h2>
             </div>
             <Link to="/shop" className="hidden md:flex items-center gap-1 text-sm font-semibold text-violet-600 hover:text-violet-700 transition-colors">
               View All <ChevronRight size={16} />
@@ -373,7 +373,7 @@ export const LandingPage: React.FC = () => {
                   </Link>
                   <p className="text-xs text-gray-500 mt-0.5">{product.colorway}</p>
                   <span className="inline-flex mt-2 px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 text-[10px] font-bold uppercase tracking-wide">
-                    {product.tags.includes('ua-grade') ? 'UA Grade' : '1:1 Import'}
+                    {product.tags.includes('editors-choice') ? "Editor's Choice" : 'Boutique Pick'}
                   </span>
 
                   <div className="flex items-center gap-1 mt-2">
