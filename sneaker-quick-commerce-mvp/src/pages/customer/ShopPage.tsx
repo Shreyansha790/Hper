@@ -10,8 +10,8 @@ const BRANDS = ['All', 'Nike', 'Jordan', 'Yeezy', 'New Balance'];
 const CATEGORIES = ['All', 'Lifestyle', 'Basketball', 'Running', 'Skateboarding'];
 const SORT_OPTIONS = [
   { value: 'featured',   label: 'Featured' },
-  { value: 'price_asc',  label: 'Price: Low → High' },
-  { value: 'price_desc', label: 'Price: High → Low' },
+  { value: 'price_asc',  label: 'Price: Low to High' },
+  { value: 'price_desc', label: 'Price: High to Low' },
   { value: 'rating',     label: 'Best Rated' },
   { value: 'newest',     label: 'Newest' },
 ];
@@ -63,10 +63,9 @@ export const ShopPage: React.FC = () => {
   const hasActiveFilters = selectedBrand !== 'All' || selectedCategory !== 'All';
 
   return (
- feature/dark-luxury-ui
     <div className="min-h-screen bg-[#0A0A0A] text-white">
 
-      {/* ── Page Header ── */}
+      {/* Page Header */}
       <div className="bg-[#0D0D0D] border-b border-white/[0.07] pt-6 pb-8 px-4">
         <div className="max-w-7xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
@@ -77,22 +76,13 @@ export const ShopPage: React.FC = () => {
               EXCLUSIVE DROPS
             </h1>
             <p className="text-xs text-neutral-500 mt-2">30-minute express delivery guaranteed across Bangalore</p>
-
-    <div className="min-h-screen bg-black text-white pt-20">
-      {/* Header */}
-      <div className="bg-gradient-to-b from-neutral-950 via-black to-neutral-900 py-14 border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="text-4xl font-black text-gray-900">Exclusive Drops</h1>
-            <p className="text-gray-500 mt-2">{filtered.length} premium alternatives · 30-minute delivery guaranteed</p>
- main
           </motion.div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
 
-        {/* ── Toolbar ── */}
+        {/* Toolbar */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           {/* Search */}
           <div className="relative flex-1">
@@ -100,13 +90,8 @@ export const ShopPage: React.FC = () => {
             <input
               value={searchQ}
               onChange={(e) => setSearchQ(e.target.value)}
- feature/dark-luxury-ui
               placeholder="Search master replicas..."
               className="w-full pl-9 pr-4 py-2.5 bg-[#111111] border border-white/10 rounded-sm text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-[#E8FF47]/40 focus:ring-1 focus:ring-[#E8FF47]/20 transition-all"
-
-              placeholder="Search premium alternatives..."
-              className="w-full pl-10 pr-4 py-2.5 border border-white/15 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-white/40 bg-neutral-900 text-white"
- main
             />
           </div>
 
@@ -138,7 +123,7 @@ export const ShopPage: React.FC = () => {
           </div>
         </div>
 
-        {/* ── Filter Panel ── */}
+        {/* Filter Panel */}
         <AnimatePresence>
           {showFilters && (
             <motion.div
@@ -210,7 +195,7 @@ export const ShopPage: React.FC = () => {
                     className="w-full accent-[#E8FF47]"
                   />
                   <div className="flex justify-between text-[10px] text-neutral-600 mt-1 font-mono-custom">
-                    <span>₹5,000</span><span>₹35,000</span>
+                    <span>Rs 5,000</span><span>Rs 35,000</span>
                   </div>
                 </div>
               </div>
@@ -218,7 +203,7 @@ export const ShopPage: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* ── Active Filter Pills ── */}
+        {/* Active Filter Pills */}
         {hasActiveFilters && (
           <div className="flex flex-wrap gap-2 mb-6">
             {selectedBrand !== 'All' && (
@@ -236,10 +221,10 @@ export const ShopPage: React.FC = () => {
           </div>
         )}
 
-        {/* ── Product Grid ── */}
+        {/* Product Grid */}
         {filtered.length === 0 ? (
           <div className="text-center py-24">
-            <p className="text-5xl mb-4">👟</p>
+            <p className="text-5xl mb-4">&#128095;</p>
             <h3 className="font-display text-3xl text-neutral-600 tracking-wide">NO SNEAKERS FOUND</h3>
             <p className="text-neutral-600 text-xs mt-2 font-mono-custom">Try adjusting your filters</p>
           </div>
@@ -268,13 +253,8 @@ export const ShopPage: React.FC = () => {
 
                   {/* Image */}
                   <Link to={`/product/${product.id}`}>
- feature/dark-luxury-ui
                     <div className="relative h-48 sm:h-56 bg-gradient-to-b from-[#161616] to-[#111111] overflow-hidden mx-3 mt-2 rounded-sm">
                       <span className="absolute top-2 right-2 z-20 px-2 py-0.5 border border-white/15 bg-black/70 text-[8px] font-mono-custom uppercase tracking-[0.18em] text-neutral-400 rounded-sm">1:1</span>
-
-                    <div className="relative h-48 sm:h-56 bg-gradient-to-b from-neutral-900 to-black overflow-hidden -mt-8 pt-8">
-                      <span className="absolute top-3 right-3 z-20 px-2 py-1 rounded-full border border-white/20 bg-black/70 text-[10px] uppercase tracking-[0.18em] font-semibold text-white">Boutique Pick</span>
- main
                       <img
                         src={product.images[0]}
                         alt={product.name}
@@ -313,7 +293,7 @@ export const ShopPage: React.FC = () => {
                             : 'bg-[#E8FF47] text-black hover:bg-[#d4eb30]'
                         }`}
                       >
-                        {addedId === product.id ? '✓ ADDED' : '+ ADD'}
+                        {addedId === product.id ? 'ADDED' : '+ ADD'}
                       </motion.button>
                     </div>
 
