@@ -14,10 +14,10 @@ const RETURN_REASONS = [
 ];
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  requested: { label: 'Requested', color: 'bg-amber-100 text-amber-700', icon: <Clock size={12} /> },
-  approved: { label: 'Approved', color: 'bg-blue-100 text-blue-700', icon: <CheckCircle2 size={12} /> },
-  rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700', icon: <X size={12} /> },
-  refunded: { label: 'Refunded', color: 'bg-emerald-100 text-emerald-700', icon: <CheckCircle2 size={12} /> },
+  requested: { label: 'Requested', color: 'bg-amber-500/10 text-amber-400 border border-amber-500/20', icon: <Clock size={12} /> },
+  approved: { label: 'Approved', color: 'bg-blue-500/10 text-blue-400 border border-blue-500/20', icon: <CheckCircle2 size={12} /> },
+  rejected: { label: 'Rejected', color: 'bg-red-500/10 text-red-400 border border-red-500/20', icon: <X size={12} /> },
+  refunded: { label: 'Refunded', color: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20', icon: <CheckCircle2 size={12} /> },
 };
 
 export const ReturnsPage: React.FC = () => {
@@ -37,14 +37,15 @@ export const ReturnsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+    <div className="min-h-screen bg-[#0A0A0A] text-white pt-24 pb-16">
+      <div className="max-w-3xl mx-auto px-4">
+        
+        <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/[0.06]">
           <div>
-            <h1 className="text-3xl font-black text-gray-900">Returns & Refunds</h1>
-            <p className="text-gray-500 text-sm mt-1">7-day no-questions-asked return policy</p>
+            <h1 className="font-display text-[44px] leading-none tracking-wide text-white uppercase">RETURNS</h1>
+            <p className="text-neutral-500 text-xs mt-1 font-mono-custom">7-day no-questions-asked return policy</p>
           </div>
-          <Button variant="primary" size="sm" onClick={() => setShowForm(true)}>
+          <Button variant="accent" size="sm" onClick={() => setShowForm(true)}>
             + Request Return
           </Button>
         </div>
@@ -53,27 +54,31 @@ export const ReturnsPage: React.FC = () => {
         <AnimatePresence>
           {showForm && (
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="bg-white rounded-2xl border border-violet-200 shadow-card p-6 mb-6"
+              exit={{ opacity: 0, y: -16 }}
+              className="bg-[#111111] rounded-sm border border-white/10 p-6 mb-6 shadow-premium"
             >
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="font-black text-gray-900">New Return Request</h2>
-                <button onClick={() => setShowForm(false)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 transition-all">
+              <div className="flex items-center justify-between mb-5 pb-3 border-b border-white/[0.06]">
+                <h2 className="font-display text-xl tracking-wider uppercase text-white">New Return Request</h2>
+                <button onClick={() => setShowForm(false)} className="p-1.5 rounded-sm text-neutral-500 hover:bg-white/5 hover:text-white transition-all">
                   <X size={16} />
                 </button>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <p className="text-sm font-semibold text-gray-700 mb-3">Reason for Return</p>
+                  <p className="text-xs font-bold font-mono-custom text-neutral-400 uppercase tracking-wider mb-3">Reason for Return</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {RETURN_REASONS.map((r) => (
                       <button
                         key={r.value}
                         onClick={() => setSelectedReason(r.value)}
-                        className={`flex items-center gap-2 p-3 rounded-xl border-2 text-left text-sm font-medium transition-all ${selectedReason === r.value ? 'border-violet-500 bg-violet-50 text-violet-700' : 'border-gray-200 text-gray-700 hover:border-gray-300'}`}
+                        className={`flex items-center gap-2 p-3 rounded-sm border text-left text-xs font-bold tracking-wider uppercase transition-all ${
+                          selectedReason === r.value
+                            ? 'border-[#E8FF47] bg-[#E8FF47]/10 text-white'
+                            : 'border-white/10 bg-[#0A0A0A] text-neutral-400 hover:border-white/20'
+                        }`}
                       >
                         <span>{r.emoji}</span>
                         <span>{r.label}</span>
@@ -83,25 +88,26 @@ export const ReturnsPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <p className="text-sm font-semibold text-gray-700 mb-2">Additional Details</p>
+                  <p className="text-xs font-bold font-mono-custom text-neutral-400 uppercase tracking-wider mb-2">Additional Details</p>
                   <textarea
                     rows={3}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Describe the issue in detail..."
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
+                    placeholder="Describe the product or sizing issue in detail..."
+                    className="w-full px-4 py-3 bg-[#0A0A0A] border border-white/10 rounded-sm text-xs text-white focus:outline-none focus:border-[#E8FF47]/40 focus:ring-1 focus:ring-[#E8FF47]/20 transition-all resize-none"
                   />
                 </div>
 
-                <div className="flex gap-3">
-                  <Button variant="secondary" onClick={() => setShowForm(false)}>Cancel</Button>
+                <div className="flex gap-2 justify-end">
+                  <Button variant="ghost" size="sm" onClick={() => setShowForm(false)}>Cancel</Button>
                   <Button
-                    variant="primary"
+                    variant="accent"
+                    size="sm"
                     isLoading={submitted}
                     onClick={handleSubmit}
                     disabled={!selectedReason}
                   >
-                    Submit Return Request
+                    Submit Request
                   </Button>
                 </div>
               </div>
@@ -112,25 +118,25 @@ export const ReturnsPage: React.FC = () => {
         {/* Policy Info */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           {[
-            { emoji: '7️⃣', title: '7-Day Returns', desc: 'From delivery date' },
-            { emoji: '💰', title: 'Full Refund', desc: 'Original payment method' },
-            { emoji: '🚀', title: 'Quick Process', desc: 'Pickup in 24hrs' },
-          ].map((info) => (
-            <div key={info.title} className="bg-white rounded-2xl border border-gray-100 shadow-card p-4 text-center">
+            { emoji: '7️⃣', title: '7-Day Limit', desc: 'From delivery date' },
+            { emoji: '💰', title: 'Full Refund', desc: 'Back to payment source' },
+            { emoji: '🚀', title: 'Instant Pickup', desc: 'Rider arrives in 24hrs' },
+          ].map((info, i) => (
+            <div key={i} className="bg-[#111111] rounded-sm border border-white/[0.07] p-4 text-center font-mono-custom">
               <p className="text-2xl mb-2">{info.emoji}</p>
-              <p className="text-sm font-bold text-gray-900">{info.title}</p>
-              <p className="text-xs text-gray-500">{info.desc}</p>
+              <p className="text-xs font-bold text-white uppercase tracking-wider">{info.title}</p>
+              <p className="text-[10px] text-neutral-500 mt-1">{info.desc}</p>
             </div>
           ))}
         </div>
 
         {/* Returns List */}
-        <h2 className="text-lg font-black text-gray-900 mb-4">Return History</h2>
+        <h2 className="text-xs font-bold font-mono-custom text-neutral-400 uppercase tracking-wider mb-4">Return History</h2>
         {mockReturnRequests.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-            <Package size={40} className="text-gray-200 mx-auto mb-3" />
-            <p className="font-bold text-gray-900">No return requests</p>
-            <p className="text-sm text-gray-500 mt-1">Your return history will appear here</p>
+          <div className="text-center py-16 bg-[#111111] rounded-sm border border-white/[0.07]">
+            <Package size={40} className="text-neutral-700 mx-auto mb-3" />
+            <p className="font-display text-xl tracking-wide uppercase text-white">No returns logged</p>
+            <p className="text-xs text-neutral-500 mt-1 font-mono-custom">Your sneaker return history will show up here</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -141,35 +147,35 @@ export const ReturnsPage: React.FC = () => {
               return (
                 <motion.div
                   key={ret.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-card p-5"
+                  transition={{ delay: i * 0.08 }}
+                  className="bg-[#111111] rounded-sm border border-white/[0.07] p-5"
                 >
-                  <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-start justify-between mb-4 pb-2 border-b border-white/[0.04]">
                     <div>
-                      <p className="text-xs text-gray-500">Return ID</p>
-                      <p className="font-black text-gray-900 text-sm">{ret.id}</p>
+                      <p className="text-[9px] font-mono-custom text-neutral-500 uppercase tracking-wider">Return Reference ID</p>
+                      <p className="font-bold text-white text-xs font-mono-custom">{ret.id}</p>
                     </div>
-                    <span className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${config.color}`}>
+                    <span className={`flex items-center gap-1 px-2.5 py-1 rounded-sm text-[10px] font-bold uppercase tracking-wider font-mono-custom ${config.color}`}>
                       {config.icon}
                       {config.label}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-lg">{reason?.emoji}</span>
+                  <div className="flex items-start gap-3 mb-4">
+                    <span className="text-2xl mt-0.5">{reason?.emoji}</span>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{reason?.label}</p>
-                      <p className="text-xs text-gray-500">{ret.description}</p>
+                      <p className="text-xs font-bold text-white uppercase tracking-wider font-mono-custom">{reason?.label}</p>
+                      <p className="text-xs text-neutral-400 mt-0.5 font-medium">{ret.description}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <p className="text-xs text-gray-400">Requested {formatDate(ret.createdAt)}</p>
-                    <p className="text-sm font-black text-gray-900">
+                  <div className="flex items-center justify-between pt-3 border-t border-white/[0.06] text-xs font-mono-custom">
+                    <p className="text-neutral-500">Requested {formatDate(ret.createdAt)}</p>
+                    <p className="font-bold text-white">
                       {ret.status === 'refunded' ? (
-                        <span className="text-emerald-600">Refunded {formatCurrency(ret.refundAmount)}</span>
+                        <span className="text-emerald-400">Refunded {formatCurrency(ret.refundAmount)}</span>
                       ) : (
                         formatCurrency(ret.refundAmount)
                       )}

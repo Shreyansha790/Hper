@@ -7,7 +7,7 @@ const p = mockProducts;
 const s = mockStores;
 const u = mockUsers;
 
-export const mockOrders: Order[] = [
+const DEFAULT_MOCK_ORDERS: Order[] = [
   {
     id: 'ord-001',
     userId: 'user-002',
@@ -238,3 +238,35 @@ export const mockOrders: Order[] = [
     updatedAt: '2024-04-11T10:28:00Z',
   },
 ];
+
+const loadOrders = (): Order[] => {
+  const saved = localStorage.getItem('kicksfly-orders');
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch (e) {
+      console.error('[mockOrders] Failed to parse orders from localStorage', e);
+    }
+  }
+  return DEFAULT_MOCK_ORDERS;
+};
+
+export const mockOrders: Order[] = loadOrders();
+
+export const saveOrder = (order: Order) => {
+  mockOrders.unshift(order);
+  localStorage.setItem('kicksfly-orders', JSON.stringify(mockOrders));
+};
+
+export const updateMockOrderStatus = (orderId: string, status: any) => {
+  const order = mockOrders.find(o => o.id === orderId);
+  if (order) {
+    order.status = status;
+    order.timeline.push({
+      status,
+      timestamp: new Date().toISOString()
+    });
+    order.updatedAt = new Date().toISOString();
+    localStorage.setItem('kicksfly-orders', JSON.stringify(mockOrders));
+  }
+};
