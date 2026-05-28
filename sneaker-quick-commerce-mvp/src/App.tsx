@@ -7,7 +7,6 @@ import { CheckoutPage } from '@/pages/customer/CheckoutPage';
 import { OrdersPage } from '@/pages/customer/OrdersPage';
 import { OrderTrackingPage } from '@/pages/customer/OrderTrackingPage';
 import { ReturnsPage } from '@/pages/customer/ReturnsPage';
-import { AuthPage } from '@/pages/customer/AuthPage';
 import { ProfilePage } from '@/pages/customer/ProfilePage';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { OverviewPage } from '@/pages/dashboard/OverviewPage';
@@ -17,27 +16,23 @@ import { ProductsPage } from '@/pages/dashboard/ProductsPage';
 import { Navbar } from '@/components/customer/Navbar';
 import { CartDrawer } from '@/components/customer/CartDrawer';
 import { useAuthStore } from '@/store/authStore';
+import { ProtectedRoute } from '@/components/shared/ProtectedRoute';
+import { LoginPage } from '@/pages/auth/LoginPage';
+import { SignupPage } from '@/pages/auth/SignupPage';
+import { StorekeeperDashboardPage } from '@/pages/storekeeper/StorekeeperDashboardPage';
+import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
 
-const CustomerLayout = () => (
-  <>
-    <Navbar />
-    <Outlet />
-    <CartDrawer />
-  </>
-);
+const CustomerLayout = () => (<><Navbar /><Outlet /><CartDrawer /></>);
 
 export default function App() {
   const { initialize } = useAuthStore();
-
-  // Initialize real Supabase auth listener on mount.
-  // This keeps the user session in sync across page loads and OAuth redirects.
-  useEffect(() => {
-    const unsubscribe = initialize();
-    return unsubscribe;
-  }, [initialize]);
+  useEffect(() => { const unsubscribe = initialize(); return unsubscribe; }, [initialize]);
 
   return (
     <Routes>
+      <Route path="/auth/login" element={<LoginPage />} />
+      <Route path="/auth/signup" element={<SignupPage />} />
+
       <Route element={<CustomerLayout />}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/shop" element={<ShopPage />} />
@@ -46,43 +41,16 @@ export default function App() {
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/track-order/:orderId" element={<OrderTrackingPage />} />
         <Route path="/returns" element={<ReturnsPage />} />
-        <Route path="/auth" element={<AuthPage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
-      <Route
-        path="/dashboard"
-        element={
-          <DashboardLayout>
-            <OverviewPage />
-          </DashboardLayout>
-        }
-      />
-      <Route
-        path="/dashboard/orders"
-        element={
-          <DashboardLayout>
-            <OrdersManagementPage />
-          </DashboardLayout>
-        }
-      />
-      <Route
-        path="/dashboard/inventory"
-        element={
-          <DashboardLayout>
-            <InventoryPage />
-          </DashboardLayout>
-        }
-      />
-      <Route
-        path="/dashboard/products"
-        element={
-          <DashboardLayout>
-            <ProductsPage />
-          </DashboardLayout>
-        }
-      />
+      <Route path="/storekeeper" element={<ProtectedRoute role="storekeeper"><StorekeeperDashboardPage /></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboardPage /></ProtectedRoute>} />
 
+      <Route path="/dashboard" element={<ProtectedRoute role="storekeeper"><DashboardLayout><OverviewPage /></DashboardLayout></ProtectedRoute>} />
+      <Route path="/dashboard/orders" element={<ProtectedRoute role="storekeeper"><DashboardLayout><OrdersManagementPage /></DashboardLayout></ProtectedRoute>} />
+      <Route path="/dashboard/inventory" element={<ProtectedRoute role="storekeeper"><DashboardLayout><InventoryPage /></DashboardLayout></ProtectedRoute>} />
+      <Route path="/dashboard/products" element={<ProtectedRoute role="storekeeper"><DashboardLayout><ProductsPage /></DashboardLayout></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
