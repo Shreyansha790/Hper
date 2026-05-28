@@ -8,18 +8,18 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  authError: string | null;
   initialize: () => () => void;
-  loginWithGoogle: (role?: Role) => Promise<void>;
-  login: (email: string, role?: Role) => Promise<boolean>; // kept for demo fallback
+  loginWithGoogle: (role?: Role) => Promise<boolean>;
+  loginWithPassword: (email: string, password: string) => Promise<boolean>;
+  signUpWithPassword: (email: string, password: string, fullName: string, role?: Role) => Promise<boolean>;
+  login: (email: string, role?: Role) => Promise<boolean>; // demo fallback
   logout: () => Promise<void>;
+  clearAuthError: () => void;
   setUser: (user: User) => void;
 }
 
-// Map a Supabase auth user + optional public.users row to our app User type
-const mapSupabaseUser = (
-  authUser: any,
-  publicUser?: any
-): User => ({
+const mapSupabaseUser = (authUser: any, publicUser?: any): User => ({
   id: authUser.id,
   name:
     publicUser?.full_name ||
@@ -35,99 +35,128 @@ const mapSupabaseUser = (
   createdAt: authUser.created_at ?? new Date().toISOString(),
 });
 
+const upsertPublicUser = async (authUser: any, role: Role = 'customer') => {
+  const baseUser = {
+    id: authUser.id,
+    email: authUser.email,
+    full_name:
+      authUser.user_metadata?.full_name ||
+      authUser.user_metadata?.name ||
+      authUser.email?.split('@')[0] ||
+      'User',
+    role,
+  };
+
+  const { data, error } = await (supabase as any)
+    .from('users')
+    .upsert(baseUser)
+    .select('*')
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       isAuthenticated: false,
       isLoading: false,
+      authError: null,
 
-      // Call this once in App.tsx on mount.
-      // Returns an unsubscribe function to clean up the listener.
       initialize: () => {
-        if (!isSupabaseConfigured) {
-          // No Supabase — nothing to initialize, demo mode only
-          return () => {};
-        }
+        if (!isSupabaseConfigured) return () => {};
 
         const {
           data: { subscription },
         } = (supabase as any).auth.onAuthStateChange(async (_event: any, session: any) => {
           if (!session) {
-            set({ user: null, isAuthenticated: false, isLoading: false });
+            set({ user: null, isAuthenticated: false, isLoading: false, authError: null });
             return;
           }
 
-          // Fetch the user's public profile (role, store assignment, etc.)
           const { data: publicUser } = await (supabase as any)
             .from('users')
             .select('*')
             .eq('id', session.user.id)
             .single();
 
-          const pendingRole = localStorage.getItem('kicksfly_oauth_role') as Role | null;
-          let resolvedPublicUser = publicUser;
-
-          if (!publicUser && pendingRole) {
-            const newPublicUser = {
-              id: session.user.id,
-              email: session.user.email,
-              full_name:
-                session.user.user_metadata?.full_name ||
-                session.user.user_metadata?.name ||
-                session.user.email?.split('@')[0] ||
-                'User',
-              role: pendingRole,
-            };
-
-            const { data: insertedUser } = await (supabase as any)
-              .from('users')
-              .upsert(newPublicUser)
-              .select('*')
-              .single();
-
-            resolvedPublicUser = insertedUser ?? resolvedPublicUser;
-          }
+          const pendingRole = (localStorage.getItem('kicksfly_oauth_role') as Role | null) ?? 'customer';
+          const resolvedPublicUser = publicUser ?? (await upsertPublicUser(session.user, pendingRole));
 
           localStorage.removeItem('kicksfly_oauth_role');
-
-          const appUser = mapSupabaseUser(session.user, resolvedPublicUser);
-          set({ user: appUser, isAuthenticated: true, isLoading: false });
+          set({ user: mapSupabaseUser(session.user, resolvedPublicUser), isAuthenticated: true, isLoading: false, authError: null });
         });
 
         return () => subscription?.unsubscribe?.();
       },
 
-      // Real Google OAuth sign-in via Supabase
       loginWithGoogle: async (role = 'customer') => {
-        if (!isSupabaseConfigured) {
-          console.warn('[auth] Supabase not configured — cannot use Google sign-in');
-          return;
-        }
-        set({ isLoading: true });
+        if (!isSupabaseConfigured) return false;
+
+        set({ isLoading: true, authError: null });
         localStorage.setItem('kicksfly_oauth_role', role);
+
         const { error } = await (supabase as any).auth.signInWithOAuth({
           provider: 'google',
-          options: {
-            redirectTo: window.location.origin,
-          },
+          options: { redirectTo: window.location.origin },
         });
+
         if (error) {
-          console.error('[auth] Google sign-in error:', error.message);
-          set({ isLoading: false });
+          set({ isLoading: false, authError: error.message });
+          return false;
         }
-        // On success the browser redirects — no further action needed here
+
+        return true;
       },
 
-      // Demo fallback login (for development / storekeeper / admin demo)
+      loginWithPassword: async (email, password) => {
+        if (!isSupabaseConfigured) return false;
+        set({ isLoading: true, authError: null });
+
+        const { data, error } = await (supabase as any).auth.signInWithPassword({ email, password });
+        if (error) {
+          set({ isLoading: false, authError: error.message });
+          return false;
+        }
+
+        await upsertPublicUser(data.user, 'customer');
+        set({ isLoading: false, authError: null });
+        return true;
+      },
+
+      signUpWithPassword: async (email, password, fullName, role = 'customer') => {
+        if (!isSupabaseConfigured) return false;
+        set({ isLoading: true, authError: null });
+
+        const { data, error } = await (supabase as any).auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: fullName } },
+        });
+
+        if (error) {
+          set({ isLoading: false, authError: error.message });
+          return false;
+        }
+
+        if (data.user) {
+          await upsertPublicUser(data.user, role);
+        }
+
+        set({ isLoading: false, authError: null });
+        return true;
+      },
+
       login: async (email, role) => {
-        set({ isLoading: true });
+        set({ isLoading: true, authError: null });
         await new Promise((resolve) => setTimeout(resolve, 600));
 
-        const found = mockUsers.find(
-          (u) => u.email === email || (role && u.role === role)
-        );
-
+        const found = mockUsers.find((u) => u.email === email || (role && u.role === role));
         if (found) {
           set({ user: found, isAuthenticated: true, isLoading: false });
           return true;
@@ -145,15 +174,13 @@ export const useAuthStore = create<AuthState>()(
         return true;
       },
 
-      // Sign out from both Supabase and local state
       logout: async () => {
-        if (isSupabaseConfigured) {
-          await (supabase as any).auth.signOut();
-        }
-        set({ user: null, isAuthenticated: false });
+        if (isSupabaseConfigured) await (supabase as any).auth.signOut();
+        set({ user: null, isAuthenticated: false, authError: null });
       },
 
-      setUser: (user) => set({ user, isAuthenticated: true }),
+      clearAuthError: () => set({ authError: null }),
+      setUser: (user) => set({ user, isAuthenticated: true, authError: null }),
     }),
     { name: 'kicksfly-auth' }
   )
