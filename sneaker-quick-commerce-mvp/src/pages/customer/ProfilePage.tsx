@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, MapPin, Phone, Mail, Shield, LogOut, Plus, Trash2, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
@@ -15,6 +16,7 @@ interface SavedAddress {
 }
 
 export const ProfilePage: React.FC = () => {
+  const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const [successMsg, setSuccessMsg] = useState('');
   
@@ -119,6 +121,11 @@ export const ProfilePage: React.FC = () => {
     setTimeout(() => setSuccessMsg(''), 2500);
   };
 
+  const handleLogout = async () => {
+    await logout();
+    navigate('/auth', { replace: true });
+  };
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white pt-24 pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -178,7 +185,7 @@ export const ProfilePage: React.FC = () => {
               </div>
 
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="w-full py-3 border border-red-500/25 hover:border-red-500 text-red-500 text-xs font-bold tracking-widest uppercase hover:bg-red-500/5 transition-all flex items-center justify-center gap-2 rounded-sm"
               >
                 <LogOut size={12} /> Logout Account
