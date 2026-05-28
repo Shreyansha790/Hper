@@ -194,8 +194,16 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
-        if (isSupabaseConfigured) await (supabase as any).auth.signOut();
-        set({ user: null, isAuthenticated: false, authError: null });
+        if (isSupabaseConfigured) {
+          const { error } = await (supabase as any).auth.signOut({ scope: 'global' });
+
+          if (error) {
+            await (supabase as any).auth.signOut();
+          }
+        }
+
+        localStorage.removeItem('kicksfly_oauth_role');
+        set({ user: null, isAuthenticated: false, isLoading: false, authError: null });
       },
 
       clearAuthError: () => set({ authError: null }),

@@ -57,6 +57,12 @@ export const Navbar: React.FC = () => {
     }
   };
 
+
+  const handleLogout = async () => {
+    await logout();
+    setShowUserMenu(false);
+    navigate('/auth', { replace: true });
+  };
   const tickerText = TICKER_ITEMS.join('   ·   ');
 
   return (
@@ -225,7 +231,7 @@ export const Navbar: React.FC = () => {
                             </Link>
                           )}
                           <button
-                            onClick={() => { logout(); setShowUserMenu(false); }}
+                            onClick={handleLogout}
                             className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-[#FF3131] hover:bg-white/5 transition-all"
                           >
                             <LogOut size={13} /> Logout
