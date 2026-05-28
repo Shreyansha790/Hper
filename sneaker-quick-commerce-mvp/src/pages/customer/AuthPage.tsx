@@ -34,6 +34,7 @@ export const AuthPage: React.FC = () => {
     password: '',
     role: 'customer' as Role,
   });
+  const [oauthRole, setOauthRole] = useState<Role>('customer');
 
   const onAuthSuccess = () => {
     const user = useAuthStore.getState().user;
@@ -68,17 +69,23 @@ export const AuthPage: React.FC = () => {
 
             {isSupabaseConfigured && (
               <div className="space-y-2 mb-5">
-                {(['customer', 'storekeeper', 'admin'] as Role[]).map((role) => (
-                  <button
-                    key={role}
-                    onClick={() => handleGoogle(role)}
-                    disabled={isLoading}
-                    className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white text-black font-bold text-sm rounded-sm disabled:opacity-70"
-                  >
-                    <GoogleIcon />
-                    <span className="font-mono-custom text-xs font-bold uppercase tracking-wider">Continue with Google ({role})</span>
-                  </button>
-                ))}
+                <select
+                  className="w-full px-4 py-3 bg-[#111111] border border-white/10 rounded-sm text-sm text-white"
+                  value={oauthRole}
+                  onChange={(e) => setOauthRole(e.target.value as Role)}
+                >
+                  <option value="customer">Google login as Customer</option>
+                  <option value="storekeeper">Google login as Storekeeper</option>
+                  <option value="admin">Google login as Admin</option>
+                </select>
+                <button
+                  onClick={() => handleGoogle(oauthRole)}
+                  disabled={isLoading}
+                  className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white text-black font-bold text-sm rounded-sm disabled:opacity-70"
+                >
+                  <GoogleIcon />
+                  <span className="font-mono-custom text-xs font-bold uppercase tracking-wider">Continue with Google</span>
+                </button>
               </div>
             )}
 
