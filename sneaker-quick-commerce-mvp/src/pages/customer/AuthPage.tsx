@@ -59,9 +59,9 @@ export const AuthPage: React.FC = () => {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async (role: Role) => {
     setGoogleLoading(true);
-    await loginWithGoogle();
+    await loginWithGoogle(role);
     // Browser will redirect to Google — setGoogleLoading stays true during redirect
   };
 
@@ -97,23 +97,32 @@ export const AuthPage: React.FC = () => {
             {isSupabaseConfigured && (
               <div className="mb-6">
                 <h1 className="font-display text-3xl tracking-wider text-white uppercase mb-2">Sign In</h1>
-                <p className="text-neutral-500 text-xs font-mono-custom mb-5">Sign in with your Google account to place orders and track them in real-time.</p>
+                <p className="text-neutral-500 text-xs font-mono-custom mb-5">Choose how you want to sign in with Google.</p>
 
-                <button
-                  id="google-signin-btn"
-                  onClick={handleGoogleLogin}
-                  disabled={googleLoading}
-                  className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white hover:bg-neutral-100 active:bg-neutral-200 text-black font-bold text-sm rounded-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-sm"
-                >
-                  {googleLoading ? (
-                    <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                  ) : (
-                    <GoogleIcon />
-                  )}
-                  <span className="font-mono-custom text-xs font-bold uppercase tracking-wider">
-                    {googleLoading ? 'Redirecting...' : 'Continue with Google'}
-                  </span>
-                </button>
+                <div className="space-y-2">
+                  {[
+                    { role: 'customer' as Role, label: 'Continue as Customer' },
+                    { role: 'storekeeper' as Role, label: 'Continue as Shopkeeper' },
+                    { role: 'admin' as Role, label: 'Continue as Admin' },
+                  ].map((item) => (
+                    <button
+                      key={item.role}
+                      id={`google-signin-btn-${item.role}`}
+                      onClick={() => handleGoogleLogin(item.role)}
+                      disabled={googleLoading}
+                      className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white hover:bg-neutral-100 active:bg-neutral-200 text-black font-bold text-sm rounded-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-sm"
+                    >
+                      {googleLoading ? (
+                        <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                      ) : (
+                        <GoogleIcon />
+                      )}
+                      <span className="font-mono-custom text-xs font-bold uppercase tracking-wider">
+                        {googleLoading ? 'Redirecting...' : item.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
 
                 <div className="flex items-center gap-3 mt-5 mb-1">
                   <div className="flex-1 h-px bg-white/[0.08]" />

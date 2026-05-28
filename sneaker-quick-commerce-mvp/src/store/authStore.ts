@@ -9,7 +9,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   initialize: () => () => void;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: (role?: Role) => Promise<void>;
   login: (email: string, role?: Role) => Promise<boolean>; // kept for demo fallback
   logout: () => Promise<void>;
   setUser: (user: User) => void;
@@ -65,7 +65,33 @@ export const useAuthStore = create<AuthState>()(
             .eq('id', session.user.id)
             .single();
 
-          const appUser = mapSupabaseUser(session.user, publicUser);
+          const pendingRole = localStorage.getItem('kicksfly_oauth_role') as Role | null;
+          let resolvedPublicUser = publicUser;
+
+          if (!publicUser && pendingRole) {
+            const newPublicUser = {
+              id: session.user.id,
+              email: session.user.email,
+              full_name:
+                session.user.user_metadata?.full_name ||
+                session.user.user_metadata?.name ||
+                session.user.email?.split('@')[0] ||
+                'User',
+              role: pendingRole,
+            };
+
+            const { data: insertedUser } = await (supabase as any)
+              .from('users')
+              .upsert(newPublicUser)
+              .select('*')
+              .single();
+
+            resolvedPublicUser = insertedUser ?? resolvedPublicUser;
+          }
+
+          localStorage.removeItem('kicksfly_oauth_role');
+
+          const appUser = mapSupabaseUser(session.user, resolvedPublicUser);
           set({ user: appUser, isAuthenticated: true, isLoading: false });
         });
 
@@ -73,12 +99,13 @@ export const useAuthStore = create<AuthState>()(
       },
 
       // Real Google OAuth sign-in via Supabase
-      loginWithGoogle: async () => {
+      loginWithGoogle: async (role = 'customer') => {
         if (!isSupabaseConfigured) {
           console.warn('[auth] Supabase not configured — cannot use Google sign-in');
           return;
         }
         set({ isLoading: true });
+        localStorage.setItem('kicksfly_oauth_role', role);
         const { error } = await (supabase as any).auth.signInWithOAuth({
           provider: 'google',
           options: {
