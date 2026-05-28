@@ -29,8 +29,28 @@ const mapAppStatusToDbStatus = (status: OrderStatus): string => {
   return map[status] || 'Pending';
 };
 
+const PLACEHOLDER_PRODUCT = {
+  id: 'unknown',
+  name: 'Unknown Product',
+  brand: '—',
+  model: '—',
+  description: '',
+  price: 0,
+  originalPrice: 0,
+  images: ['https://via.placeholder.com/80x80?text=N/A'],
+  category: '',
+  colorway: '',
+  sizes: [],
+  tags: [],
+  featured: false,
+  rating: 0,
+  reviewCount: 0,
+  createdAt: '',
+};
+
 const mapDbOrderToOrder = (row: DbOrderRow): Order => {
-  const rawItems = row.order_items ?? row.OrderItems ?? [];
+  // Support both nested Supabase response keys
+  const rawItems: any[] = row.order_items ?? row.OrderItems ?? [];
 
   return {
     id: row.id,
@@ -39,13 +59,14 @@ const mapDbOrderToOrder = (row: DbOrderRow): Order => {
     storeId: row.store_id ?? 'unknown-store',
     store: row.store ?? undefined,
     items: rawItems.map((item: any) => ({
-      id: item.id,
-      productId: item.product_id,
-      product: item.products ?? item.product,
-      size: item.size,
-      quantity: item.quantity,
-      price: item.unit_price ?? item.price,
-      storeId: item.store_id ?? row.store_id,
+      id: item.id ?? `${row.id}-item`,
+      productId: item.product_id ?? item.productId ?? '',
+      // 'products' is the Supabase join key (table name singular=products), 'product' is fallback
+      product: item.products ?? item.product ?? PLACEHOLDER_PRODUCT,
+      size: item.size ?? '—',
+      quantity: item.quantity ?? 1,
+      price: item.unit_price ?? item.price ?? 0,
+      storeId: item.store_id ?? row.store_id ?? '',
     })),
     address: {
       id: `${row.id}-address`,
@@ -59,7 +80,9 @@ const mapDbOrderToOrder = (row: DbOrderRow): Order => {
       isDefault: true,
     },
     status: mapDbStatusToAppStatus(row.status),
-    timeline: Array.isArray(row.timeline) ? row.timeline : [{ status: mapDbStatusToAppStatus(row.status), timestamp: row.updated_at ?? row.created_at }],
+    timeline: Array.isArray(row.timeline) && row.timeline.length > 0
+      ? row.timeline
+      : [{ status: mapDbStatusToAppStatus(row.status), timestamp: row.updated_at ?? row.created_at }],
     paymentMethod: (row.payment_method ?? 'cod') as PaymentMethod,
     paymentStatus: row.payment_status ?? 'pending',
     subtotal: row.subtotal ?? row.total ?? 0,

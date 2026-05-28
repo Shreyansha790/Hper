@@ -47,8 +47,13 @@ export const OrdersManagementPage: React.FC = () => {
 
   const filteredOrders = orders.filter((order) => {
     const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
-    const matchesStore = isAdmin || order.storeId === user?.assignedStoreId;
-    const matchesSearch = !search || order.id.toLowerCase().includes(search.toLowerCase()) || order.user?.name?.toLowerCase().includes(search.toLowerCase());
+    // Admin sees all; storekeeper sees their store OR all if no assignedStoreId
+    const matchesStore = isAdmin || !user?.assignedStoreId || order.storeId === user.assignedStoreId;
+    const searchLower = search.toLowerCase();
+    const matchesSearch = !search
+      || order.id.toLowerCase().includes(searchLower)
+      || order.user?.name?.toLowerCase().includes(searchLower)
+      || order.address?.city?.toLowerCase().includes(searchLower);
     return matchesStatus && matchesStore && matchesSearch;
   });
 
@@ -147,7 +152,11 @@ export const OrdersManagementPage: React.FC = () => {
                       <div className="flex gap-1">
                         {order.items.slice(0, 2).map((item) => (
                           <div key={item.id} className="w-9 h-9 rounded-sm overflow-hidden bg-white/[0.02] border border-white/[0.07] flex-shrink-0">
-                            <img src={item.product.images[0]} alt="" className="w-full h-full object-cover" />
+                            {item.product?.images?.[0] ? (
+                              <img src={item.product.images[0]} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-[8px] font-mono-custom text-neutral-600">IMG</div>
+                            )}
                           </div>
                         ))}
                         {order.items.length > 2 && (
@@ -276,12 +285,16 @@ export const OrdersManagementPage: React.FC = () => {
                     {selectedOrder.items.map((item) => (
                       <div key={item.id} className="flex gap-3 p-3 bg-white/[0.02] border border-white/[0.07] rounded-sm">
                         <div className="w-14 h-14 rounded-sm overflow-hidden bg-white/[0.02] border border-white/[0.07] flex-shrink-0">
-                          <img src={item.product.images[0]} alt="" className="w-full h-full object-cover" />
+                          {item.product?.images?.[0] ? (
+                            <img src={item.product.images[0]} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[9px] font-mono-custom text-neutral-600 uppercase">No Img</div>
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[9px] font-bold text-[#E8FF47] uppercase tracking-wider">{item.product.brand}</p>
-                          <p className="text-xs font-bold text-white uppercase leading-tight mt-0.5">{item.product.name}</p>
-                          <p className="text-[9px] text-neutral-500 font-mono-custom mt-1 uppercase">UK {item.size} · SKU: {item.product.sizes.find(s => s.size === item.size)?.sku}</p>
+                          <p className="text-[9px] font-bold text-[#E8FF47] uppercase tracking-wider">{item.product?.brand ?? '—'}</p>
+                          <p className="text-xs font-bold text-white uppercase leading-tight mt-0.5">{item.product?.name ?? 'Unknown Product'}</p>
+                          <p className="text-[9px] text-neutral-500 font-mono-custom mt-1 uppercase">UK {item.size} · QTY: {item.quantity}</p>
                         </div>
                         <div className="text-right flex-shrink-0">
                           <p className="text-xs font-bold text-white font-mono-custom">{formatCurrency(item.price)}</p>
