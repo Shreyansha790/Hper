@@ -19,6 +19,7 @@ import { useAuthStore } from '@/store/authStore';
 import { ProtectedRoute } from '@/components/shared/ProtectedRoute';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { SignupPage } from '@/pages/auth/SignupPage';
+import { AuthPage } from '@/pages/customer/AuthPage';
 import { StorekeeperDashboardPage } from '@/pages/storekeeper/StorekeeperDashboardPage';
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
 
@@ -32,6 +33,7 @@ export default function App() {
     <Routes>
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/signup" element={<SignupPage />} />
+      <Route path="/auth" element={<AuthPage />} />
 
       <Route element={<CustomerLayout />}>
         <Route path="/" element={<LandingPage />} />
