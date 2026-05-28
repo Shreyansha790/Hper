@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Zap, ArrowRight, Shield } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
-import { isSupabaseConfigured } from '@/lib/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 import type { Role } from '@/types';
 
 const GoogleIcon = () => (
@@ -19,7 +19,6 @@ export const AuthPage: React.FC = () => {
   const navigate = useNavigate();
   const {
     login,
-    loginWithGoogle,
     loginWithPassword,
     signUpWithPassword,
     clearAuthError,
@@ -35,6 +34,8 @@ export const AuthPage: React.FC = () => {
     role: 'customer' as Role,
   });
   const [oauthRole, setOauthRole] = useState<Role>('customer');
+  const [oauthLoading, setOauthLoading] = useState(false);
+  const [oauthError, setOauthError] = useState<string | null>(null);
 
   const onAuthSuccess = () => {
     const user = useAuthStore.getState().user;
@@ -50,8 +51,30 @@ export const AuthPage: React.FC = () => {
     if (success) onAuthSuccess();
   };
 
+  const signInWithGoogle = async () => {
+    const { error } = await (supabase as any).auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+
+    if (error) console.error(error);
+    return error;
+  };
+
   const handleGoogle = async (role: Role) => {
-    await loginWithGoogle(role);
+    if (!isSupabaseConfigured || oauthLoading || isLoading) return;
+
+    setOauthError(null);
+    setOauthLoading(true);
+    localStorage.setItem('kicksfly_oauth_role', role);
+
+    const error = await signInWithGoogle();
+    if (error) {
+      setOauthError(error.message);
+      setOauthLoading(false);
+    }
   };
 
   return (
@@ -78,14 +101,6 @@ export const AuthPage: React.FC = () => {
                   <option value="storekeeper">Google login as Storekeeper</option>
                   <option value="admin">Google login as Admin</option>
                 </select>
-                <button
-                  onClick={() => handleGoogle(oauthRole)}
-                  disabled={isLoading}
-                  className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white text-black font-bold text-sm rounded-sm disabled:opacity-70"
-                >
-                  <GoogleIcon />
-                  <span className="font-mono-custom text-xs font-bold uppercase tracking-wider">Continue with Google</span>
-                </button>
               </div>
             )}
 
@@ -109,6 +124,22 @@ export const AuthPage: React.FC = () => {
               <button type="submit" disabled={isLoading || !isSupabaseConfigured} className="w-full py-3 bg-[#E8FF47] text-black text-xs font-bold uppercase tracking-wider rounded-sm disabled:opacity-60">
                 {isLoading ? 'Please wait...' : isSignUp ? 'Create Account' : 'Sign In'}
               </button>
+
+              {isSupabaseConfigured && (
+                <button
+                  type="button"
+                  onClick={() => handleGoogle(oauthRole)}
+                  disabled={oauthLoading || isLoading}
+                  className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white text-black font-bold text-sm rounded-sm disabled:opacity-70"
+                >
+                  <GoogleIcon />
+                  <span className="font-mono-custom text-xs font-bold uppercase tracking-wider">
+                    {oauthLoading ? 'Redirecting...' : 'Continue with Google'}
+                  </span>
+                </button>
+              )}
+
+              {oauthError && <p className="text-red-400 text-xs">{oauthError}</p>}
             </form>
 
             <button
