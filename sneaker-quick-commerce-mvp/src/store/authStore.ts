@@ -9,6 +9,7 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitialized: boolean; // true once the first onAuthStateChange fires
   authError: string | null;
   initialize: () => () => void;
   loginWithGoogle: (role?: Role) => Promise<boolean>;
@@ -54,12 +55,12 @@ const upsertPublicUser = async (authUser: any, role: Role = 'customer') => {
     .select('*')
     .single();
 
-  if (error) {
-    throw new Error(error.message);
-  }
-
+  if (error) throw new Error(error.message);
   return data;
 };
+
+// Stable singleton — initialize is called once and never changes reference
+let _unsubscribe: (() => void) | null = null;
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -67,16 +68,30 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       isLoading: false,
+      isInitialized: !isSupabaseConfigured, // if no Supabase, we're immediately "initialized"
       authError: null,
 
       initialize: () => {
-        if (!isSupabaseConfigured) return () => {};
+        // Prevent double-subscribing (e.g. StrictMode double-mount)
+        if (_unsubscribe) return _unsubscribe;
+        if (!isSupabaseConfigured) {
+          set({ isInitialized: true });
+          _unsubscribe = () => {};
+          return _unsubscribe;
+        }
 
         const {
           data: { subscription },
         } = (supabase as any).auth.onAuthStateChange(async (_event: any, session: any) => {
           if (!session) {
-            set({ user: null, isAuthenticated: false, isLoading: false, authError: null });
+            // Clear all auth state on sign-out — this is the ground truth
+            set({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+              isInitialized: true,
+              authError: null,
+            });
             return;
           }
 
@@ -90,12 +105,19 @@ export const useAuthStore = create<AuthState>()(
               .single();
 
             const resolvedPublicUser = publicUser ?? (await upsertPublicUser(session.user, pendingRole));
-            set({ user: mapSupabaseUser(session.user, resolvedPublicUser), isAuthenticated: true, isLoading: false, authError: null });
-          } catch (_error) {
+            set({
+              user: mapSupabaseUser(session.user, resolvedPublicUser),
+              isAuthenticated: true,
+              isLoading: false,
+              isInitialized: true,
+              authError: null,
+            });
+          } catch {
             set({
               user: mapSupabaseUser(session.user, { role: pendingRole }),
               isAuthenticated: true,
               isLoading: false,
+              isInitialized: true,
               authError: null,
             });
           } finally {
@@ -103,26 +125,33 @@ export const useAuthStore = create<AuthState>()(
           }
         });
 
-        return () => subscription?.unsubscribe?.();
+        _unsubscribe = () => {
+          subscription?.unsubscribe?.();
+          _unsubscribe = null;
+        };
+        return _unsubscribe;
       },
 
       loginWithGoogle: async (role = 'customer') => {
         if (!isSupabaseConfigured) return false;
 
         set({ isLoading: true, authError: null });
+        // Use safeLocalStorage (works in Safari private mode)
         safeLocalStorage.setItem('kicksfly_oauth_role', role);
 
+        const redirectTo = isBrowser ? window.location.origin : undefined;
         const { error } = await (supabase as any).auth.signInWithOAuth({
           provider: 'google',
-          options: { redirectTo: isBrowser ? window.location.origin : undefined },
+          options: { redirectTo },
         });
 
         if (error) {
           set({ isLoading: false, authError: error.message });
+          safeLocalStorage.removeItem('kicksfly_oauth_role');
           return false;
         }
 
-        return true;
+        return true; // Browser will redirect — isLoading stays true during redirect
       },
 
       loginWithPassword: async (email, password) => {
@@ -137,8 +166,8 @@ export const useAuthStore = create<AuthState>()(
 
         try {
           await upsertPublicUser(data.user, 'customer');
-        } catch (_error) {
-          // Non-blocking: session auth succeeded even if profile sync fails.
+        } catch {
+          // Non-blocking
         }
 
         set({ isLoading: false, authError: null });
@@ -163,8 +192,8 @@ export const useAuthStore = create<AuthState>()(
         if (data.user) {
           try {
             await upsertPublicUser(data.user, role);
-          } catch (_error) {
-            // Non-blocking: account exists even if profile row write is blocked.
+          } catch {
+            // Non-blocking
           }
         }
 
@@ -178,7 +207,7 @@ export const useAuthStore = create<AuthState>()(
 
         const found = mockUsers.find((u) => u.email === email || (role && u.role === role));
         if (found) {
-          set({ user: found, isAuthenticated: true, isLoading: false });
+          set({ user: found, isAuthenticated: true, isLoading: false, isInitialized: true });
           return true;
         }
 
@@ -190,26 +219,44 @@ export const useAuthStore = create<AuthState>()(
           role: 'customer',
           createdAt: new Date().toISOString(),
         };
-        set({ user: defaultUser, isAuthenticated: true, isLoading: false });
+        set({ user: defaultUser, isAuthenticated: true, isLoading: false, isInitialized: true });
         return true;
       },
 
       logout: async () => {
-        if (isSupabaseConfigured) {
-          const { error } = await (supabase as any).auth.signOut({ scope: 'global' });
+        // Clear local state FIRST so UI updates immediately in all browsers
+        set({ user: null, isAuthenticated: false, isLoading: false, authError: null });
+        safeLocalStorage.removeItem('kicksfly_oauth_role');
 
-          if (error) {
-            await (supabase as any).auth.signOut();
+        if (isSupabaseConfigured) {
+          try {
+            // Use local scope (not global) for broader compatibility
+            await (supabase as any).auth.signOut({ scope: 'local' });
+          } catch {
+            // Sign-out API failure is non-fatal — local state is already cleared
           }
         }
 
-        safeLocalStorage.removeItem('kicksfly_oauth_role');
-        set({ user: null, isAuthenticated: false, isLoading: false, authError: null });
+        // Also clear the persisted zustand store so stale user doesn't re-appear on reload
+        if (isBrowser) {
+          try {
+            localStorage.removeItem('kicksfly-auth');
+          } catch {
+            // Safari private mode — already handled by safeLocalStorage
+          }
+        }
       },
 
       clearAuthError: () => set({ authError: null }),
       setUser: (user) => set({ user, isAuthenticated: true, authError: null }),
     }),
-    { name: 'kicksfly-auth' }
+    {
+      name: 'kicksfly-auth',
+      // Only persist non-sensitive fields — session truth comes from Supabase
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
+    }
   )
 );

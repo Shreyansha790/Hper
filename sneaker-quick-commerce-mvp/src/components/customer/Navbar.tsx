@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -45,6 +45,35 @@ export const Navbar: React.FC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchVal, setSearchVal] = useState('');
+
+  const locationRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        showLocation &&
+        locationRef.current &&
+        !locationRef.current.contains(event.target as Node)
+      ) {
+        setShowLocation(false);
+      }
+      if (
+        showUserMenu &&
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showLocation, showUserMenu]);
 
   const totalItems = getTotalItems();
 
@@ -99,7 +128,7 @@ export const Navbar: React.FC = () => {
             </Link>
 
             {/* Location Picker */}
-            <div className="hidden md:block relative">
+            <div ref={locationRef} className="hidden md:block relative">
               <button
                 onClick={() => setShowLocation(!showLocation)}
                 className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors font-medium tracking-wide uppercase"
@@ -193,7 +222,7 @@ export const Navbar: React.FC = () => {
 
               {/* User Menu */}
               {isAuthenticated && user ? (
-                <div className="relative">
+                <div ref={userMenuRef} className="relative">
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
                     className="flex items-center gap-2 p-1.5 rounded-sm hover:bg-white/5 transition-all"
@@ -325,13 +354,7 @@ export const Navbar: React.FC = () => {
         </AnimatePresence>
       </motion.nav>
 
-      {/* Dropdown Overlay */}
-      {(showLocation || showUserMenu) && (
-        <div
-          className="fixed inset-0 z-30"
-          onClick={() => { setShowLocation(false); setShowUserMenu(false); }}
-        />
-      )}
+      {/* Dropdown Overlay removed in favor of click-outside listener */}
     </>
   );
 };

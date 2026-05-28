@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Zap, ArrowRight, Shield } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
+import { safeLocalStorage, isBrowser } from '@/lib/utils/browser';
 import type { Role } from '@/types';
 
 const GoogleIcon = () => (
@@ -51,30 +52,26 @@ export const AuthPage: React.FC = () => {
     if (success) onAuthSuccess();
   };
 
-  const signInWithGoogle = async () => {
-    const { error } = await (supabase as any).auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-
-    if (error) console.error(error);
-    return error;
-  };
-
   const handleGoogle = async (role: Role) => {
     if (!isSupabaseConfigured || oauthLoading || isLoading) return;
 
     setOauthError(null);
     setOauthLoading(true);
-    localStorage.setItem('kicksfly_oauth_role', role);
+    // Use safeLocalStorage — works in Safari private mode where raw localStorage throws
+    safeLocalStorage.setItem('kicksfly_oauth_role', role);
 
-    const error = await signInWithGoogle();
+    const redirectTo = isBrowser ? window.location.origin : undefined;
+    const { error } = await (supabase as any).auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo },
+    });
+
     if (error) {
       setOauthError(error.message);
       setOauthLoading(false);
+      safeLocalStorage.removeItem('kicksfly_oauth_role');
     }
+    // On success the browser redirects — setOauthLoading stays true
   };
 
   return (

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { MotionConfig } from 'framer-motion';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { LandingPage } from '@/pages/customer/LandingPage';
@@ -27,8 +27,14 @@ import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
 const CustomerLayout = () => (<><Navbar /><Outlet /><CartDrawer /></>);
 
 export default function App() {
-  const { initialize } = useAuthStore();
-  useEffect(() => { const unsubscribe = initialize(); return unsubscribe; }, [initialize]);
+  const initialize = useAuthStore((s) => s.initialize);
+  // Use ref so the effect never re-fires if the store reference changes
+  const initializeRef = useRef(initialize);
+  initializeRef.current = initialize;
+  useEffect(() => {
+    const unsubscribe = initializeRef.current();
+    return unsubscribe;
+  }, []); // intentionally empty — runs exactly once on mount
 
   return (
     <MotionConfig reducedMotion="user">
