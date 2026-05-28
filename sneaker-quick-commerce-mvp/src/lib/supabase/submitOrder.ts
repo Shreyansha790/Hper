@@ -95,7 +95,11 @@ export async function submitOrder(cartItems: CartLineItem[], customer: CheckoutD
 
   if (isSupabaseConfigured) {
     console.log('[submitOrder] Supabase configured. Attempting to insert order into DB...');
-    await insertOrderToSupabase(newOrder, cartItems, customer);
+    await withTimeout(
+      insertOrderToSupabase(newOrder, cartItems, customer),
+      8000,
+      '[submitOrder] Supabase insert timed out. Continuing with local order.'
+    );
   } else {
     console.log('[submitOrder] Supabase not configured — using local mock store only.');
   }
@@ -213,4 +217,24 @@ function ensureUUID(str: string): string {
 
   // Fallback default UUID
   return '00000000-0000-4000-a000-000000000000';
+}
+
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string) {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  const timeoutPromise = new Promise<undefined>((resolve) => {
+    timeoutId = setTimeout(() => {
+      console.warn(timeoutMessage);
+      resolve(undefined);
+    }, timeoutMs);
+  });
+
+  try {
+    await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
 }
