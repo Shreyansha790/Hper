@@ -35,12 +35,12 @@ export const LandingPage: React.FC = () => {
   const featuredProducts = mockProducts.filter((p) => p.featured).slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] overflow-hidden">
+    <div className="min-h-screen-safe bg-[#0A0A0A] overflow-hidden">
 
       {/* ════════════════════════════════════════
           HERO
       ════════════════════════════════════════ */}
-      <div ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden">
+      <div ref={heroRef} className="relative min-h-screen-safe flex items-center overflow-hidden">
         {/* Subtle grid overlay */}
         <div
           className="absolute inset-0 opacity-[0.025]"
@@ -158,7 +158,7 @@ export const LandingPage: React.FC = () => {
                 <img
                   src="/images/hero-sneaker.jpg"
                   alt="Featured Sneaker"
-                  className="w-full object-contain"
+                  className="w-full object-contain" loading="eager" decoding="async"
                   style={{ filter: 'drop-shadow(0 40px 80px rgba(232,255,71,0.2))' }}
                 />
               </motion.div>

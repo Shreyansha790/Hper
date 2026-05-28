@@ -37,7 +37,7 @@ export const ReturnsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white pt-24 pb-16">
+    <div className="min-h-screen-safe bg-[#0A0A0A] text-white pt-24 pb-16">
       <div className="max-w-3xl mx-auto px-4">
         
         <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/[0.06]">

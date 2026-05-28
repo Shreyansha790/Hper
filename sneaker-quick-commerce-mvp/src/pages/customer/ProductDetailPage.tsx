@@ -16,6 +16,7 @@ import { mockProducts, mockInventory } from '@/lib/mock';
 import { formatCurrency } from '@/lib/utils';
 import { useCartStore } from '@/store/cartStore';
 import { Button } from '@/components/ui/Button';
+import { safeLocalStorage, isBrowser } from '@/lib/utils/browser';
 
 export const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,14 +31,14 @@ export const ProductDetailPage: React.FC = () => {
 
   // Persistent wishlist via localStorage
   const [wishlist, setWishlist] = useState(() => {
-    const saved = localStorage.getItem('kicksfly-wishlist');
+    const saved = safeLocalStorage.getItem('kicksfly-wishlist');
     const list = saved ? JSON.parse(saved) : [];
     return list.includes(id || '');
   });
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center pt-20 text-white">
+      <div className="min-h-screen-safe bg-[#0A0A0A] flex items-center justify-center pt-20 text-white">
         <div className="text-center card-dark p-8 max-w-sm w-full mx-4">
           <p className="text-4xl mb-4">👟</p>
           <h2 className="font-display text-2xl tracking-wider text-white">SNEAKER NOT FOUND</h2>
@@ -65,7 +66,7 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   const toggleWishlist = () => {
-    const saved = localStorage.getItem('kicksfly-wishlist');
+    const saved = safeLocalStorage.getItem('kicksfly-wishlist');
     let list = saved ? JSON.parse(saved) : [];
     if (list.includes(product.id)) {
       list = list.filter((pid: string) => pid !== product.id);
@@ -74,7 +75,7 @@ export const ProductDetailPage: React.FC = () => {
       list.push(product.id);
       setWishlist(true);
     }
-    localStorage.setItem('kicksfly-wishlist', JSON.stringify(list));
+    safeLocalStorage.setItem('kicksfly-wishlist', JSON.stringify(list));
   };
 
   const related = mockProducts.filter((p) => p.id !== product.id && (p.brand === product.brand || p.category === product.category)).slice(0, 3);
@@ -83,14 +84,14 @@ export const ProductDetailPage: React.FC = () => {
     const shareData = {
       title: product.name,
       text: `Check out ${product.name} on KicksFly`,
-      url: window.location.href,
+      url: isBrowser ? window.location.href : '',
     };
 
     try {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(window.location.href);
+        await navigator.clipboard.writeText(isBrowser ? window.location.href : '');
         window.alert('Product link copied to clipboard!');
       }
     } catch (error) {
@@ -107,7 +108,7 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white pt-20 pb-16">
+    <div className="min-h-screen-safe bg-[#0A0A0A] text-white pt-20 pb-16">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-neutral-500 mb-8 tracking-wider uppercase font-mono-custom">
@@ -131,7 +132,7 @@ export const ProductDetailPage: React.FC = () => {
                   transition={{ duration: 0.25 }}
                   src={product.images[selectedImage] || product.images[0]}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover" loading="eager" decoding="async"
                 />
               </AnimatePresence>
 
@@ -161,7 +162,7 @@ export const ProductDetailPage: React.FC = () => {
                     onClick={() => setSelectedImage(i)}
                     className={`relative w-20 h-20 rounded-sm overflow-hidden border-2 transition-all bg-[#111111] ${selectedImage === i ? 'border-[#E8FF47]' : 'border-white/10 hover:border-white/20'}`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={img} alt="" className="w-full h-full object-cover" loading="eager" decoding="async" />
                   </button>
                 ))}
               </div>

@@ -241,3 +241,65 @@
   .text-accent    { color: #E8FF47; }
   .ring-accent    { --tw-ring-color: #E8FF47; }
 }
+
+@layer base {
+  :root {
+    --app-vh: 1vh;
+  }
+
+  @supports (height: 100dvh) {
+    :root {
+      --app-vh: 1dvh;
+    }
+  }
+
+  @supports (height: 100svh) {
+    :root {
+      --app-vh: 1svh;
+    }
+  }
+}
+
+@layer utilities {
+  .min-h-screen-safe {
+    min-height: 100vh;
+    min-height: calc(var(--app-vh) * 100);
+  }
+
+  .h-screen-safe {
+    height: 100vh;
+    height: calc(var(--app-vh) * 100);
+  }
+
+  .backdrop-blur-safe {
+    background: rgba(10, 10, 10, 0.72);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass,
+    .glass-accent,
+    .glass-dark,
+    .backdrop-blur-safe {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      background: rgba(17, 17, 17, 0.9);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-float,
+    .animate-float-slow,
+    .animate-pulse-soft,
+    .animate-gradient,
+    .animate-ticker,
+    .animate-ticker-slow,
+    .hover-lift,
+    .card-dark-hover {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+}

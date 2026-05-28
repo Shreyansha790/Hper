@@ -55,7 +55,7 @@ export const OrderTrackingPage: React.FC = () => {
   const currentStatusIndex = STATUS_ORDER.indexOf(activeOrder.status);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white pt-24 pb-16">
+    <div className="min-h-screen-safe bg-[#0A0A0A] text-white pt-24 pb-16">
       <div className="max-w-2xl mx-auto px-4">
         
         <Link to="/orders" className="inline-flex items-center gap-2 text-xs font-mono-custom text-neutral-500 hover:text-white transition-colors mb-8 uppercase tracking-wider">

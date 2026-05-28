@@ -47,7 +47,7 @@ export const Modal: React.FC<ModalProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 backdrop-blur-safe"
             onClick={onClose}
           />
           <motion.div
@@ -56,7 +56,7 @@ export const Modal: React.FC<ModalProps> = ({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', duration: 0.4 }}
             className={cn(
-              'relative w-full bg-white rounded-2xl shadow-2xl z-10 max-h-[90vh] overflow-y-auto',
+              'relative w-full bg-white rounded-2xl shadow-2xl z-10 max-h-[90vh] max-h-[90dvh] overflow-y-auto',
               sizes[size],
               className
             )}
@@ -118,7 +118,7 @@ export const Drawer: React.FC<DrawerProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 backdrop-blur-safe"
             onClick={onClose}
           />
           <motion.div
@@ -127,7 +127,7 @@ export const Drawer: React.FC<DrawerProps> = ({
             exit={{ x: side === 'right' ? '100%' : '-100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className={cn(
-              'relative h-full bg-white shadow-2xl flex flex-col',
+              'relative h-full max-h-[100vh] max-h-[100dvh] bg-white shadow-2xl flex flex-col',
               width,
               side === 'right' ? 'ml-auto' : 'mr-auto'
             )}

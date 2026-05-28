@@ -15,7 +15,7 @@ export const OrdersPage: React.FC = () => {
     : mockOrders.slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white pt-24 pb-16">
+    <div className="min-h-screen-safe bg-[#0A0A0A] text-white pt-24 pb-16">
       <div className="max-w-3xl mx-auto px-4">
         
         <div className="mb-8">

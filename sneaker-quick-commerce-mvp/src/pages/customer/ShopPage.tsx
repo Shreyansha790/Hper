@@ -63,7 +63,7 @@ export const ShopPage: React.FC = () => {
   const hasActiveFilters = selectedBrand !== 'All' || selectedCategory !== 'All';
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="min-h-screen-safe bg-[#0A0A0A] text-white">
 
       {/* Page Header */}
       <div className="bg-[#0D0D0D] border-b border-white/[0.07] pt-6 pb-8 px-4">
