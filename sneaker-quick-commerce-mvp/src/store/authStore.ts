@@ -79,17 +79,27 @@ export const useAuthStore = create<AuthState>()(
             return;
           }
 
-          const { data: publicUser } = await (supabase as any)
-            .from('users')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-
           const pendingRole = (localStorage.getItem('kicksfly_oauth_role') as Role | null) ?? 'customer';
-          const resolvedPublicUser = publicUser ?? (await upsertPublicUser(session.user, pendingRole));
 
-          localStorage.removeItem('kicksfly_oauth_role');
-          set({ user: mapSupabaseUser(session.user, resolvedPublicUser), isAuthenticated: true, isLoading: false, authError: null });
+          try {
+            const { data: publicUser } = await (supabase as any)
+              .from('users')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
+
+            const resolvedPublicUser = publicUser ?? (await upsertPublicUser(session.user, pendingRole));
+            set({ user: mapSupabaseUser(session.user, resolvedPublicUser), isAuthenticated: true, isLoading: false, authError: null });
+          } catch (_error) {
+            set({
+              user: mapSupabaseUser(session.user, { role: pendingRole }),
+              isAuthenticated: true,
+              isLoading: false,
+              authError: null,
+            });
+          } finally {
+            localStorage.removeItem('kicksfly_oauth_role');
+          }
         });
 
         return () => subscription?.unsubscribe?.();
@@ -124,7 +134,12 @@ export const useAuthStore = create<AuthState>()(
           return false;
         }
 
-        await upsertPublicUser(data.user, 'customer');
+        try {
+          await upsertPublicUser(data.user, 'customer');
+        } catch (_error) {
+          // Non-blocking: session auth succeeded even if profile sync fails.
+        }
+
         set({ isLoading: false, authError: null });
         return true;
       },
@@ -145,7 +160,11 @@ export const useAuthStore = create<AuthState>()(
         }
 
         if (data.user) {
-          await upsertPublicUser(data.user, role);
+          try {
+            await upsertPublicUser(data.user, role);
+          } catch (_error) {
+            // Non-blocking: account exists even if profile row write is blocked.
+          }
         }
 
         set({ isLoading: false, authError: null });
