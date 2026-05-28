@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { LandingPage } from '@/pages/customer/LandingPage';
 import { ShopPage } from '@/pages/customer/ShopPage';
@@ -15,6 +16,7 @@ import { InventoryPage } from '@/pages/dashboard/InventoryPage';
 import { ProductsPage } from '@/pages/dashboard/ProductsPage';
 import { Navbar } from '@/components/customer/Navbar';
 import { CartDrawer } from '@/components/customer/CartDrawer';
+import { useAuthStore } from '@/store/authStore';
 
 const CustomerLayout = () => (
   <>
@@ -25,6 +27,15 @@ const CustomerLayout = () => (
 );
 
 export default function App() {
+  const { initialize } = useAuthStore();
+
+  // Initialize real Supabase auth listener on mount.
+  // This keeps the user session in sync across page loads and OAuth redirects.
+  useEffect(() => {
+    const unsubscribe = initialize();
+    return unsubscribe;
+  }, [initialize]);
+
   return (
     <Routes>
       <Route element={<CustomerLayout />}>
@@ -41,35 +52,35 @@ export default function App() {
 
       <Route
         path="/dashboard"
-        element={(
+        element={
           <DashboardLayout>
             <OverviewPage />
           </DashboardLayout>
-        )}
+        }
       />
       <Route
         path="/dashboard/orders"
-        element={(
+        element={
           <DashboardLayout>
             <OrdersManagementPage />
           </DashboardLayout>
-        )}
+        }
       />
       <Route
         path="/dashboard/inventory"
-        element={(
+        element={
           <DashboardLayout>
             <InventoryPage />
           </DashboardLayout>
-        )}
+        }
       />
       <Route
         path="/dashboard/products"
-        element={(
+        element={
           <DashboardLayout>
             <ProductsPage />
           </DashboardLayout>
-        )}
+        }
       />
 
       <Route path="*" element={<Navigate to="/" replace />} />

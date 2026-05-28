@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, ArrowRight, Shield, ChevronLeft } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
+import { isSupabaseConfigured } from '@/lib/supabase/client';
 import type { Role } from '@/types';
 
 const DEMO_ACCOUNTS = [
@@ -12,13 +13,24 @@ const DEMO_ACCOUNTS = [
   { role: 'admin' as Role, email: 'admin@kicksfly.in', label: 'Demo Administrator Panel', color: 'from-emerald-500/20 to-teal-600/20 text-emerald-400 border border-emerald-500/30', emoji: '👑' },
 ];
 
+// Google Icon SVG
+const GoogleIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.64 9.2045c0-.6381-.0573-1.2518-.1636-1.8409H9v3.4814h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2581h2.9087C16.6582 14.0518 17.64 11.8282 17.64 9.2045z" fill="#4285F4"/>
+    <path d="M9 18c2.43 0 4.4673-.8063 5.9564-2.1804l-2.9087-2.2582c-.8063.54-1.8368.8591-3.0477.8591-2.3441 0-4.3282-1.5831-5.036-3.7104H.9574v2.3318C2.4382 15.9832 5.4818 18 9 18z" fill="#34A853"/>
+    <path d="M3.964 10.71C3.7841 10.17 3.6818 9.5945 3.6818 9s.1023-1.17.2823-1.71V4.9582H.9574C.3477 6.1732 0 7.5477 0 9c0 1.4523.3477 2.8268.9574 4.0418L3.964 10.71z" fill="#FBBC05"/>
+    <path d="M9 3.5795c1.3213 0 2.5077.4541 3.4405 1.346l2.5813-2.5814C13.4632.8918 11.4259 0 9 0 5.4818 0 2.4382 2.0168.9574 4.9582L3.964 7.29C4.6718 5.1627 6.6559 3.5795 9 3.5795z" fill="#EA4335"/>
+  </svg>
+);
+
 export const AuthPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login, isLoading } = useAuthStore();
+  const { login, loginWithGoogle, isLoading } = useAuthStore();
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [email] = useState('customer@kicksfly.in');
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleSendOtp = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +57,12 @@ export const AuthPage: React.FC = () => {
         navigate('/');
       }
     }
+  };
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    await loginWithGoogle();
+    // Browser will redirect to Google — setGoogleLoading stays true during redirect
   };
 
   return (
@@ -75,82 +93,117 @@ export const AuthPage: React.FC = () => {
               </span>
             </div>
 
-            <AnimatePresence mode="wait">
-              {step === 'phone' ? (
-                <motion.div key="phone" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}>
-                  <h1 className="font-display text-3xl tracking-wider text-white uppercase">Welcome back</h1>
-                  <p className="text-neutral-500 text-xs mt-2 font-mono-custom">Enter your mobile number to check in</p>
+            {/* Google Sign-In — only shown when Supabase is configured */}
+            {isSupabaseConfigured && (
+              <div className="mb-6">
+                <h1 className="font-display text-3xl tracking-wider text-white uppercase mb-2">Sign In</h1>
+                <p className="text-neutral-500 text-xs font-mono-custom mb-5">Sign in with your Google account to place orders and track them in real-time.</p>
 
-                  <form onSubmit={handleSendOtp} className="mt-6 space-y-4">
-                    <div>
-                      <label className="block text-[10px] font-mono-custom text-neutral-400 uppercase tracking-wider mb-1.5">Mobile Number</label>
-                      <div className="relative">
-                        <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 border-r border-white/10 pr-2 font-mono-custom text-xs font-bold text-neutral-400">
-                          <span>🇮🇳</span>
-                          <span>+91</span>
+                <button
+                  id="google-signin-btn"
+                  onClick={handleGoogleLogin}
+                  disabled={googleLoading}
+                  className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white hover:bg-neutral-100 active:bg-neutral-200 text-black font-bold text-sm rounded-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-sm"
+                >
+                  {googleLoading ? (
+                    <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                  ) : (
+                    <GoogleIcon />
+                  )}
+                  <span className="font-mono-custom text-xs font-bold uppercase tracking-wider">
+                    {googleLoading ? 'Redirecting...' : 'Continue with Google'}
+                  </span>
+                </button>
+
+                <div className="flex items-center gap-3 mt-5 mb-1">
+                  <div className="flex-1 h-px bg-white/[0.08]" />
+                  <span className="text-[9px] font-mono-custom font-bold text-neutral-500 uppercase tracking-widest">or use demo accounts</span>
+                  <div className="flex-1 h-px bg-white/[0.08]" />
+                </div>
+              </div>
+            )}
+
+            {/* Demo OTP Flow — always shown if Supabase not configured */}
+            {!isSupabaseConfigured && (
+              <AnimatePresence mode="wait">
+                {step === 'phone' ? (
+                  <motion.div key="phone" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}>
+                    <h1 className="font-display text-3xl tracking-wider text-white uppercase">Welcome back</h1>
+                    <p className="text-neutral-500 text-xs mt-2 font-mono-custom">Enter your mobile number to check in</p>
+
+                    <form onSubmit={handleSendOtp} className="mt-6 space-y-4">
+                      <div>
+                        <label className="block text-[10px] font-mono-custom text-neutral-400 uppercase tracking-wider mb-1.5">Mobile Number</label>
+                        <div className="relative">
+                          <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 border-r border-white/10 pr-2 font-mono-custom text-xs font-bold text-neutral-400">
+                            <span>🇮🇳</span>
+                            <span>+91</span>
+                          </div>
+                          <input
+                            type="tel"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                            placeholder="Enter 10 digits"
+                            className="w-full pl-20 pr-4 py-3 bg-[#111111] border border-white/10 rounded-sm text-sm text-white placeholder-neutral-700 focus:outline-none focus:border-[#E8FF47]/40 focus:ring-1 focus:ring-[#E8FF47]/20 transition-all font-mono-custom"
+                          />
                         </div>
-                        <input
-                          type="tel"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                          placeholder="Enter 10 digits"
-                          className="w-full pl-20 pr-4 py-3 bg-[#111111] border border-white/10 rounded-sm text-sm text-white placeholder-neutral-700 focus:outline-none focus:border-[#E8FF47]/40 focus:ring-1 focus:ring-[#E8FF47]/20 transition-all font-mono-custom"
-                        />
                       </div>
+                      <Button type="submit" variant="accent" fullWidth size="lg" disabled={phone.length < 10} rightIcon={<ArrowRight size={14} />}>
+                        Send OTP Code
+                      </Button>
+                    </form>
+                  </motion.div>
+                ) : (
+                  <motion.div key="otp" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }}>
+                    <h1 className="font-display text-3xl tracking-wider text-white uppercase">Verify OTP</h1>
+                    <p className="text-neutral-500 text-xs mt-2 font-mono-custom">
+                      Sent to +91 {phone} · <button className="text-[#E8FF47] font-semibold underline" onClick={() => setStep('phone')}>Change</button>
+                    </p>
+
+                    <div className="flex gap-2 mt-6">
+                      {otp.map((digit, i) => (
+                        <input
+                          key={i}
+                          id={`otp-${i}`}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleOtpChange(i, e.target.value)}
+                          className="w-full aspect-square bg-[#111111] border border-white/10 rounded-sm text-center text-lg font-bold text-[#E8FF47] focus:border-[#E8FF47]/50 focus:outline-none transition-all font-mono-custom"
+                        />
+                      ))}
                     </div>
-                    <Button type="submit" variant="accent" fullWidth size="lg" disabled={phone.length < 10} rightIcon={<ArrowRight size={14} />}>
-                      Send OTP Code
+
+                    <p className="text-[10px] text-neutral-600 mt-3 text-center font-mono-custom">
+                      Demo Mode: enter any 6 digits to verify
+                    </p>
+
+                    <Button
+                      className="mt-4"
+                      variant="accent"
+                      fullWidth
+                      size="lg"
+                      isLoading={isLoading}
+                      onClick={() => handleLogin()}
+                    >
+                      Verify & Login
                     </Button>
-                  </form>
-                </motion.div>
-              ) : (
-                <motion.div key="otp" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }}>
-                  <h1 className="font-display text-3xl tracking-wider text-white uppercase">Verify OTP</h1>
-                  <p className="text-neutral-500 text-xs mt-2 font-mono-custom">
-                    Sent to +91 {phone} · <button className="text-[#E8FF47] font-semibold underline" onClick={() => setStep('phone')}>Change</button>
-                  </p>
-
-                  <div className="flex gap-2 mt-6">
-                    {otp.map((digit, i) => (
-                      <input
-                        key={i}
-                        id={`otp-${i}`}
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={1}
-                        value={digit}
-                        onChange={(e) => handleOtpChange(i, e.target.value)}
-                        className="w-full aspect-square bg-[#111111] border border-white/10 rounded-sm text-center text-lg font-bold text-[#E8FF47] focus:border-[#E8FF47]/50 focus:outline-none transition-all font-mono-custom"
-                      />
-                    ))}
-                  </div>
-
-                  <p className="text-[10px] text-neutral-600 mt-3 text-center font-mono-custom">
-                    Demo Mode: enter any 6 digits to verify
-                  </p>
-
-                  <Button
-                    className="mt-4"
-                    variant="accent"
-                    fullWidth
-                    size="lg"
-                    isLoading={isLoading}
-                    onClick={() => handleLogin()}
-                  >
-                    Verify & Login
-                  </Button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            )}
           </div>
 
           {/* Quick Demo Login Accounts */}
           <div className="px-8 pb-8">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 h-px bg-white/[0.08]" />
-              <span className="text-[9px] font-mono-custom font-bold text-neutral-500 uppercase tracking-widest">Quick Demo Login</span>
-              <div className="flex-1 h-px bg-white/[0.08]" />
-            </div>
+            {isSupabaseConfigured && (
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex-1 h-px bg-white/[0.08]" />
+                <span className="text-[9px] font-mono-custom font-bold text-neutral-500 uppercase tracking-widest">Dev / Demo Access</span>
+                <div className="flex-1 h-px bg-white/[0.08]" />
+              </div>
+            )}
 
             <div className="space-y-2">
               {DEMO_ACCOUNTS.map((acc) => (

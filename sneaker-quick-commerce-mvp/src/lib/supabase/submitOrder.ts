@@ -19,7 +19,15 @@ export interface CheckoutDetails {
 
 export async function submitOrder(cartItems: CartLineItem[], customer: CheckoutDetails) {
   const { user } = useAuthStore.getState();
-  const userId = user?.id || `user-guest-${Date.now()}`;
+
+  // Prefer the real Supabase auth session UID so FK constraints pass
+  let userId = user?.id || `user-guest-${Date.now()}`;
+  if (isSupabaseConfigured) {
+    const { data: { session } } = await (supabase as any).auth.getSession();
+    if (session?.user?.id) {
+      userId = session.user.id; // Real UUID from auth.users — no FK issues
+    }
+  }
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const deliveryFee = subtotal >= 15000 ? 0 : 49;

@@ -47,8 +47,8 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   const isAdmin = user?.role === 'admin';
   const visibleItems = NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
 
