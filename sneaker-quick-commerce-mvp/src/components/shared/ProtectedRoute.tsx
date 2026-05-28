@@ -6,7 +6,7 @@ import { roleRoutes } from '@/services/auth/authService';
 export function ProtectedRoute({ role, children }: { role: Role; children: React.ReactNode }) {
   const { isAuthenticated, user } = useAuthStore();
 
-  if (!isAuthenticated || !user) return <Navigate to="/auth/login" replace />;
+  if (!isAuthenticated || !user) return <Navigate to="/auth" replace />;
   if (user.role !== role) return <Navigate to={roleRoutes[user.role]} replace />;
 
   return <>{children}</>;
