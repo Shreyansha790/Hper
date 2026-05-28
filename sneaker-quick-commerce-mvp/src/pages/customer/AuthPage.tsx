@@ -90,8 +90,7 @@ export const AuthPage: React.FC = () => {
             <h1 className="font-display text-3xl tracking-wider text-white uppercase mb-2">{isSignUp ? 'Create Account' : 'Sign In'}</h1>
             <p className="text-neutral-500 text-xs font-mono-custom mb-5">Supabase authentication with secure email/password and Google OAuth.</p>
 
-            {isSupabaseConfigured && (
-              <div className="space-y-2 mb-5">
+            <div className="space-y-2 mb-5">
                 <select
                   className="w-full px-4 py-3 bg-[#111111] border border-white/10 rounded-sm text-sm text-white"
                   value={oauthRole}
@@ -102,7 +101,6 @@ export const AuthPage: React.FC = () => {
                   <option value="admin">Google login as Admin</option>
                 </select>
               </div>
-            )}
 
             <form onSubmit={handleSubmit} className="space-y-3">
               {isSignUp && (
@@ -125,8 +123,7 @@ export const AuthPage: React.FC = () => {
                 {isLoading ? 'Please wait...' : isSignUp ? 'Create Account' : 'Sign In'}
               </button>
 
-              {isSupabaseConfigured && (
-                <button
+              <button
                   type="button"
                   onClick={() => handleGoogle(oauthRole)}
                   disabled={oauthLoading || isLoading}
@@ -137,6 +134,9 @@ export const AuthPage: React.FC = () => {
                     {oauthLoading ? 'Redirecting...' : 'Continue with Google'}
                   </span>
                 </button>
+
+              {!isSupabaseConfigured && (
+                <p className="text-amber-300 text-xs">Google sign-in requires Supabase environment keys (VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY).</p>
               )}
 
               {oauthError && <p className="text-red-400 text-xs">{oauthError}</p>}
