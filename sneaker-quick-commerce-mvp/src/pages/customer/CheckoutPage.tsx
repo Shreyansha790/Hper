@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Banknote, ShieldCheck, Truck, CreditCard } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
@@ -14,6 +14,8 @@ export const CheckoutPage: React.FC = () => {
 
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'razorpay'>('cod');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitLockRef = useRef(false);
+
   const [details, setDetails] = useState({
     fullName: '',
     phone: '',
@@ -45,8 +47,9 @@ export const CheckoutPage: React.FC = () => {
   }
 
   const placeOrder = async () => {
-    if (!canSubmit || isSubmitting) return;
+    if (!canSubmit || isSubmitting || submitLockRef.current) return;
 
+    submitLockRef.current = true;
     setIsSubmitting(true);
     try {
       const res = await submitOrder(items, { ...details, paymentMethod });
@@ -58,6 +61,7 @@ export const CheckoutPage: React.FC = () => {
       }
     } finally {
       setIsSubmitting(false);
+      submitLockRef.current = false;
     }
   };
 
@@ -133,6 +137,7 @@ export const CheckoutPage: React.FC = () => {
               <h2 className="font-display text-xl tracking-wider uppercase text-white pb-3 border-b border-white/[0.06] mb-4">Payment Method</h2>
               <div className="grid sm:grid-cols-2 gap-3">
                 <button
+                  type="button"
                   onClick={() => setPaymentMethod('cod')}
                   className={`flex items-center gap-3 p-4 border rounded-sm transition-all text-left ${
                     paymentMethod === 'cod'
@@ -148,6 +153,7 @@ export const CheckoutPage: React.FC = () => {
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => setPaymentMethod('razorpay')}
                   className={`flex items-center gap-3 p-4 border rounded-sm transition-all text-left ${
                     paymentMethod === 'razorpay'
