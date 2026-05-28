@@ -58,7 +58,7 @@ export const ProfilePage: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center pt-20 text-white">
+      <div className="min-h-screen-safe bg-[#0A0A0A] flex items-center justify-center pt-20 text-white">
         <div className="text-center card-dark p-8 max-w-sm w-full mx-4">
           <p className="text-4xl mb-4 font-mono-custom">👤</p>
           <h2 className="font-display text-2xl tracking-wider">NOT LOGGED IN</h2>
@@ -127,7 +127,7 @@ export const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white pt-24 pb-16">
+    <div className="min-h-screen-safe bg-[#0A0A0A] text-white pt-24 pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         
         {/* Success Alert */}

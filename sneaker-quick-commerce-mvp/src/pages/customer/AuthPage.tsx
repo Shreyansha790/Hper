@@ -78,7 +78,7 @@ export const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center pt-20 pb-12 px-4">
+    <div className="min-h-screen-safe bg-[#0A0A0A] flex items-center justify-center pt-20 pb-12 px-4">
       <div className="relative w-full max-w-md mx-auto">
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="bg-[#0D0D0D] rounded-sm border border-white/[0.07] overflow-hidden">
           <div className="px-8 pt-8 pb-6">

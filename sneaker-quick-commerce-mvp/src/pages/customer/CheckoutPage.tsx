@@ -33,7 +33,7 @@ export const CheckoutPage: React.FC = () => {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white pt-24 flex items-center justify-center">
+      <div className="min-h-screen-safe bg-[#0A0A0A] text-white pt-24 flex items-center justify-center">
         <div className="text-center card-dark p-8 max-w-sm w-full mx-4">
           <p className="text-4xl mb-4 font-mono-custom">🛒</p>
           <h2 className="font-display text-2xl tracking-wider uppercase">YOUR CART IS EMPTY</h2>
@@ -66,7 +66,7 @@ export const CheckoutPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white pt-24 pb-16">
+    <div className="min-h-screen-safe bg-[#0A0A0A] text-white pt-24 pb-16">
       <div className="max-w-5xl mx-auto px-4">
         
         <div className="mb-8">

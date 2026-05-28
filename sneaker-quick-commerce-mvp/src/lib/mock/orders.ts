@@ -1,4 +1,5 @@
 import type { Order } from '@/types';
+import { safeLocalStorage } from '@/lib/utils/browser';
 import { mockProducts } from './products';
 import { mockStores } from './stores';
 import { mockUsers } from './users';
@@ -240,7 +241,7 @@ const DEFAULT_MOCK_ORDERS: Order[] = [
 ];
 
 const loadOrders = (): Order[] => {
-  const saved = localStorage.getItem('kicksfly-orders');
+  const saved = safeLocalStorage.getItem('kicksfly-orders');
   if (saved) {
     try {
       return JSON.parse(saved);
@@ -255,7 +256,7 @@ export const mockOrders: Order[] = loadOrders();
 
 export const saveOrder = (order: Order) => {
   mockOrders.unshift(order);
-  localStorage.setItem('kicksfly-orders', JSON.stringify(mockOrders));
+  safeLocalStorage.setItem('kicksfly-orders', JSON.stringify(mockOrders));
 };
 
 export const updateMockOrderStatus = (orderId: string, status: any) => {
@@ -267,6 +268,6 @@ export const updateMockOrderStatus = (orderId: string, status: any) => {
       timestamp: new Date().toISOString()
     });
     order.updatedAt = new Date().toISOString();
-    localStorage.setItem('kicksfly-orders', JSON.stringify(mockOrders));
+    safeLocalStorage.setItem('kicksfly-orders', JSON.stringify(mockOrders));
   }
 };

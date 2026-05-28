@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { MotionConfig } from 'framer-motion';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { LandingPage } from '@/pages/customer/LandingPage';
 import { ShopPage } from '@/pages/customer/ShopPage';
@@ -30,6 +31,7 @@ export default function App() {
   useEffect(() => { const unsubscribe = initialize(); return unsubscribe; }, [initialize]);
 
   return (
+    <MotionConfig reducedMotion="user">
     <Routes>
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/signup" element={<SignupPage />} />
@@ -55,5 +57,6 @@ export default function App() {
       <Route path="/dashboard/products" element={<ProtectedRoute role="storekeeper"><DashboardLayout><ProductsPage /></DashboardLayout></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </MotionConfig>
   );
 }

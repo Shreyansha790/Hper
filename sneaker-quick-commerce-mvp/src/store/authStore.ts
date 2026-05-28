@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { User, Role } from '@/types';
 import { mockUsers } from '@/lib/mock';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
+import { safeLocalStorage, isBrowser } from '@/lib/utils/browser';
 
 interface AuthState {
   user: User | null;
@@ -79,7 +80,7 @@ export const useAuthStore = create<AuthState>()(
             return;
           }
 
-          const pendingRole = (localStorage.getItem('kicksfly_oauth_role') as Role | null) ?? 'customer';
+          const pendingRole = (safeLocalStorage.getItem('kicksfly_oauth_role') as Role | null) ?? 'customer';
 
           try {
             const { data: publicUser } = await (supabase as any)
@@ -98,7 +99,7 @@ export const useAuthStore = create<AuthState>()(
               authError: null,
             });
           } finally {
-            localStorage.removeItem('kicksfly_oauth_role');
+            safeLocalStorage.removeItem('kicksfly_oauth_role');
           }
         });
 
@@ -109,11 +110,11 @@ export const useAuthStore = create<AuthState>()(
         if (!isSupabaseConfigured) return false;
 
         set({ isLoading: true, authError: null });
-        localStorage.setItem('kicksfly_oauth_role', role);
+        safeLocalStorage.setItem('kicksfly_oauth_role', role);
 
         const { error } = await (supabase as any).auth.signInWithOAuth({
           provider: 'google',
-          options: { redirectTo: window.location.origin },
+          options: { redirectTo: isBrowser ? window.location.origin : undefined },
         });
 
         if (error) {
@@ -202,7 +203,7 @@ export const useAuthStore = create<AuthState>()(
           }
         }
 
-        localStorage.removeItem('kicksfly_oauth_role');
+        safeLocalStorage.removeItem('kicksfly_oauth_role');
         set({ user: null, isAuthenticated: false, isLoading: false, authError: null });
       },
 
