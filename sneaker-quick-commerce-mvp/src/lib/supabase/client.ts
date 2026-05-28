@@ -4,7 +4,10 @@ import { mockProducts } from '../mock/products';
 
 export const supabaseConfig = {
   url: import.meta.env.VITE_SUPABASE_URL ?? '',
-  anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY ?? '',
+  anonKey:
+    import.meta.env.VITE_SUPABASE_ANON_KEY ??
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
+    '',
 };
 
 export const isSupabaseConfigured = Boolean(supabaseConfig.url && supabaseConfig.anonKey);

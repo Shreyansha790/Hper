@@ -64,7 +64,16 @@ export const AuthPage: React.FC = () => {
   };
 
   const handleGoogle = async (role: Role) => {
+ codex/complete-google-authentication-integration-0lbkim
+    if (oauthLoading || isLoading) return;
+
+    if (!isSupabaseConfigured) {
+      setOauthError('Google login is unavailable: missing Supabase environment variables.');
+      return;
+    }
+=======
     if (!isSupabaseConfigured || oauthLoading || isLoading) return;
+ main
 
     setOauthError(null);
     setOauthLoading(true);
@@ -90,6 +99,19 @@ export const AuthPage: React.FC = () => {
             <h1 className="font-display text-3xl tracking-wider text-white uppercase mb-2">{isSignUp ? 'Create Account' : 'Sign In'}</h1>
             <p className="text-neutral-500 text-xs font-mono-custom mb-5">Supabase authentication with secure email/password and Google OAuth.</p>
 
+ codex/complete-google-authentication-integration-0lbkim
+            <div className="space-y-2 mb-5">
+              <select
+                className="w-full px-4 py-3 bg-[#111111] border border-white/10 rounded-sm text-sm text-white"
+                value={oauthRole}
+                onChange={(e) => setOauthRole(e.target.value as Role)}
+              >
+                <option value="customer">Google login as Customer</option>
+                <option value="storekeeper">Google login as Storekeeper</option>
+                <option value="admin">Google login as Admin</option>
+              </select>
+            </div>
+=======
             {isSupabaseConfigured && (
               <div className="space-y-2 mb-5">
                 <select
@@ -103,6 +125,7 @@ export const AuthPage: React.FC = () => {
                 </select>
               </div>
             )}
+ main
 
             <form onSubmit={handleSubmit} className="space-y-3">
               {isSignUp && (
@@ -125,6 +148,19 @@ export const AuthPage: React.FC = () => {
                 {isLoading ? 'Please wait...' : isSignUp ? 'Create Account' : 'Sign In'}
               </button>
 
+ codex/complete-google-authentication-integration-0lbkim
+              <button
+                type="button"
+                onClick={() => handleGoogle(oauthRole)}
+                disabled={oauthLoading || isLoading}
+                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white text-black font-bold text-sm rounded-sm disabled:opacity-70"
+              >
+                <GoogleIcon />
+                <span className="font-mono-custom text-xs font-bold uppercase tracking-wider">
+                  {oauthLoading ? 'Redirecting...' : 'Continue with Google'}
+                </span>
+              </button>
+=======
               {isSupabaseConfigured && (
                 <button
                   type="button"
@@ -138,6 +174,7 @@ export const AuthPage: React.FC = () => {
                   </span>
                 </button>
               )}
+ main
 
               {oauthError && <p className="text-red-400 text-xs">{oauthError}</p>}
             </form>
