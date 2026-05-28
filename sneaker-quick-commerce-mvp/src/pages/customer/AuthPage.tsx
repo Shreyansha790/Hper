@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, ArrowRight, Shield, ChevronLeft, MapPin, Search, ShoppingBag, User } from 'lucide-react';
+import { Zap, ArrowRight, Shield, ChevronLeft } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
@@ -66,74 +66,39 @@ export const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#060606] relative overflow-hidden">
-      <div className="absolute top-28 right-8 w-96 h-96 rounded-full bg-[#E8FF47]/[0.04] blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-72 h-72 rounded-full bg-[#D8FF1A]/[0.03] blur-[100px] pointer-events-none" />
+    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center pt-20 pb-12 px-4 relative overflow-hidden">
+      {/* Background glow blooms */}
+      <div className="absolute top-1/4 right-0 w-80 h-80 rounded-full bg-[#E8FF47]/[0.03] blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-[#E8FF47]/[0.02] blur-[80px] pointer-events-none" />
 
-      <div className="relative z-10 border-b border-[#E8FF47]/30 bg-[#C9FF1A] text-black text-[10px] font-mono-custom uppercase tracking-[0.25em] text-center py-1.5">
-        Free express shipping on premium drops above ₹4,999
-      </div>
-
-      <header className="relative z-10 border-b border-white/10 bg-[#0B0B0B]/95 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4">
-          <div className="flex items-center gap-2 min-w-[160px]">
-            <div className="w-8 h-8 rounded-sm bg-[#E8FF47] flex items-center justify-center">
-              <Zap size={15} className="text-black fill-black" />
-            </div>
-            <span className="font-display text-[20px] text-white tracking-wide leading-none">
-              KICKS<span className="text-[#E8FF47]">FLY</span>
-            </span>
-          </div>
-          <button className="hidden md:flex items-center gap-1.5 text-neutral-300 border border-white/15 rounded-full px-3 py-1.5 text-[11px] font-mono-custom uppercase tracking-wider hover:border-[#E8FF47]/40">
-            <MapPin size={13} className="text-[#E8FF47]" />
-            <span>Mumbai</span>
-          </button>
-          <nav className="hidden lg:flex items-center gap-6 mx-auto text-[11px] font-mono-custom uppercase tracking-[0.22em] text-neutral-400">
-            <a href="#" className="text-white">New Arrivals</a>
-            <a href="#" className="hover:text-white transition-colors">Men</a>
-            <a href="#" className="hover:text-white transition-colors">Women</a>
-            <a href="#" className="hover:text-white transition-colors">Collections</a>
-            <a href="#" className="hover:text-white transition-colors">Sale</a>
-          </nav>
-          <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
-            {[Search, ShoppingBag, User].map((Icon, idx) => (
-              <button key={idx} className="w-9 h-9 rounded-full border border-white/15 hover:border-[#E8FF47]/60 text-neutral-300 hover:text-[#E8FF47] flex items-center justify-center transition-all">
-                <Icon size={15} />
-              </button>
-            ))}
-          </div>
-        </div>
-      </header>
-
-      <main className="px-4 py-10 sm:py-14 md:py-20 flex items-center justify-center">
-      <div className="relative w-full max-w-xl mx-auto">
+      <div className="relative w-full max-w-md mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#0C0C0C] rounded-2xl shadow-[0_30px_120px_rgba(0,0,0,0.75)] border border-white/[0.08] overflow-hidden"
+          className="bg-[#0D0D0D] rounded-sm shadow-[0_0_80px_rgba(0,0,0,0.9)] border border-white/[0.07] overflow-hidden"
         >
           {/* Header */}
-          <div className="px-6 sm:px-10 pt-8 sm:pt-10 pb-6 sm:pb-8">
-            <div className="flex items-center gap-2 mb-8 justify-center">
+          <div className="px-8 pt-8 pb-6">
+            <div className="flex items-center gap-2 mb-6">
               {step === 'otp' && (
                 <button onClick={() => setStep('phone')} className="p-1.5 rounded-sm hover:bg-white/5 text-neutral-400 hover:text-white transition-all mr-1">
                   <ChevronLeft size={16} />
                 </button>
               )}
-              <div className="w-9 h-9 rounded-md bg-[#E8FF47] flex items-center justify-center shadow-[0_0_20px_rgba(232,255,71,0.3)]">
+              <div className="w-8 h-8 rounded-sm bg-[#E8FF47] flex items-center justify-center shadow-glow-sm">
                 <Zap size={15} className="text-black fill-black" />
               </div>
-              <span className="font-display text-[22px] text-white tracking-wide leading-none">
+              <span className="font-display text-[20px] text-white tracking-wide leading-none">
                 KICKS<span className="text-[#E8FF47]">FLY</span>
               </span>
             </div>
 
             {/* Google Sign-In */}
             <div className="mb-6">
-              <h1 className="font-display text-4xl tracking-[0.12em] text-white uppercase mb-2 text-center">Sign In</h1>
-              <p className="text-neutral-400 text-xs font-mono-custom mb-6 text-center tracking-wide">Use Google for instant access, or continue with demo sign-in below.</p>
+              <h1 className="font-display text-3xl tracking-wider text-white uppercase mb-2">Sign In</h1>
+              <p className="text-neutral-500 text-xs font-mono-custom mb-5">Use Google for instant access, or continue with demo sign-in below.</p>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {[
                   { role: 'customer' as Role, label: 'Continue as Customer' },
                   { role: 'storekeeper' as Role, label: 'Continue as Shopkeeper' },
@@ -144,7 +109,7 @@ export const AuthPage: React.FC = () => {
                     id={`google-signin-btn-${item.role}`}
                     onClick={() => handleGoogleLogin(item.role)}
                     disabled={googleLoading || !isSupabaseConfigured}
-                    className="w-full flex items-center justify-center gap-3 py-4 px-4 bg-white hover:bg-neutral-100 active:bg-neutral-200 text-black font-bold text-sm rounded-xl transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-sm"
+                    className="w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-white hover:bg-neutral-100 active:bg-neutral-200 text-black font-bold text-sm rounded-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-sm"
                   >
                     {googleLoading ? (
                       <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
@@ -159,12 +124,12 @@ export const AuthPage: React.FC = () => {
               </div>
 
               {!isSupabaseConfigured && (
-                <p className="text-[10px] text-amber-300/80 mt-3 font-mono-custom uppercase tracking-wide text-center">
+                <p className="text-[10px] text-amber-300/80 mt-3 font-mono-custom uppercase tracking-wide">
                   Google sign-in is disabled until Supabase auth is configured.
                 </p>
               )}
 
-              <div className="flex items-center gap-3 mt-6 mb-1">
+              <div className="flex items-center gap-3 mt-5 mb-1">
                 <div className="flex-1 h-px bg-white/[0.08]" />
                 <span className="text-[9px] font-mono-custom font-bold text-neutral-500 uppercase tracking-widest">or use demo accounts</span>
                 <div className="flex-1 h-px bg-white/[0.08]" />
@@ -176,8 +141,8 @@ export const AuthPage: React.FC = () => {
               <AnimatePresence mode="wait">
                 {step === 'phone' ? (
                   <motion.div key="phone" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}>
-                    <h1 className="font-display text-3xl tracking-[0.12em] text-white uppercase text-center">Welcome back</h1>
-                    <p className="text-neutral-500 text-xs mt-2 font-mono-custom text-center">Enter your mobile number to check in</p>
+                    <h1 className="font-display text-3xl tracking-wider text-white uppercase">Welcome back</h1>
+                    <p className="text-neutral-500 text-xs mt-2 font-mono-custom">Enter your mobile number to check in</p>
 
                     <form onSubmit={handleSendOtp} className="mt-6 space-y-4">
                       <div>
@@ -192,7 +157,7 @@ export const AuthPage: React.FC = () => {
                             value={phone}
                             onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                             placeholder="Enter 10 digits"
-                            className="w-full pl-20 pr-4 py-3.5 bg-[#101010] border border-white/10 rounded-xl text-sm text-white placeholder-neutral-700 focus:outline-none focus:border-[#E8FF47]/40 focus:ring-1 focus:ring-[#E8FF47]/20 transition-all font-mono-custom"
+                            className="w-full pl-20 pr-4 py-3 bg-[#111111] border border-white/10 rounded-sm text-sm text-white placeholder-neutral-700 focus:outline-none focus:border-[#E8FF47]/40 focus:ring-1 focus:ring-[#E8FF47]/20 transition-all font-mono-custom"
                           />
                         </div>
                       </div>
@@ -203,7 +168,7 @@ export const AuthPage: React.FC = () => {
                   </motion.div>
                 ) : (
                   <motion.div key="otp" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }}>
-                    <h1 className="font-display text-3xl tracking-[0.12em] text-white uppercase">Verify OTP</h1>
+                    <h1 className="font-display text-3xl tracking-wider text-white uppercase">Verify OTP</h1>
                     <p className="text-neutral-500 text-xs mt-2 font-mono-custom">
                       Sent to +91 {phone} · <button className="text-[#E8FF47] font-semibold underline" onClick={() => setStep('phone')}>Change</button>
                     </p>
@@ -218,7 +183,7 @@ export const AuthPage: React.FC = () => {
                           maxLength={1}
                           value={digit}
                           onChange={(e) => handleOtpChange(i, e.target.value)}
-                          className="w-full aspect-square bg-[#111111] border border-white/10 rounded-xl text-center text-lg font-bold text-[#E8FF47] focus:border-[#E8FF47]/50 focus:outline-none transition-all font-mono-custom"
+                          className="w-full aspect-square bg-[#111111] border border-white/10 rounded-sm text-center text-lg font-bold text-[#E8FF47] focus:border-[#E8FF47]/50 focus:outline-none transition-all font-mono-custom"
                         />
                       ))}
                     </div>
@@ -244,7 +209,7 @@ export const AuthPage: React.FC = () => {
           </div>
 
           {/* Quick Demo Login Accounts */}
-          <div className="px-6 sm:px-10 pb-8 sm:pb-10">
+          <div className="px-8 pb-8">
             {isSupabaseConfigured && (
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex-1 h-px bg-white/[0.08]" />
@@ -258,7 +223,7 @@ export const AuthPage: React.FC = () => {
                 <button
                   key={acc.role}
                   onClick={() => handleLogin(acc.email)}
-                  className="w-full flex items-center gap-3 p-3.5 bg-[#101010] border border-white/10 rounded-xl hover:border-[#E8FF47]/40 hover:bg-[#E8FF47]/[0.02] transition-all text-left"
+                  className="w-full flex items-center gap-3 p-3 bg-[#111111] border border-white/10 rounded-sm hover:border-[#E8FF47]/40 hover:bg-[#E8FF47]/[0.02] transition-all text-left"
                 >
                   <div className={`w-9 h-9 rounded-sm bg-gradient-to-br ${acc.color} flex items-center justify-center text-lg flex-shrink-0 shadow-sm`}>
                     {acc.emoji}
@@ -279,7 +244,6 @@ export const AuthPage: React.FC = () => {
           </div>
         </motion.div>
       </div>
-      </main>
     </div>
   );
 };
