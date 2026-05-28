@@ -23,6 +23,8 @@
 
   html {
     scroll-behavior: smooth;
+    scrollbar-color: #E8FF47 #111111;
+    scrollbar-width: thin;
   }
 
   body {
@@ -68,6 +70,14 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass,
+    .glass-accent,
+    .glass-dark {
+      background: #161616;
+    }
+  }
+
   .glass-accent {
     background: rgba(232, 255, 71, 0.06);
     backdrop-filter: blur(20px);
@@ -97,6 +107,7 @@
 
   /* ── Text gradients ── */
   .text-gradient {
+    color: #E8FF47;
     background: linear-gradient(135deg, #E8FF47 0%, #c8e020 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -104,6 +115,7 @@
   }
 
   .text-gradient-white {
+    color: #FFFFFF;
     background: linear-gradient(180deg, #FFFFFF 0%, #888888 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -111,6 +123,7 @@
   }
 
   .text-gradient-gold {
+    color: #E8FF47;
     background: linear-gradient(135deg, #E8FF47, #ffd700);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
